@@ -58,6 +58,7 @@ async function getTagsForApplications(
 }
 
 export async function getApplications(params?: {
+	userId?: string;
 	search?: string;
 	status?: string;
 	priority?: string;
@@ -65,6 +66,10 @@ export async function getApplications(params?: {
 }): Promise<ApplicationRow[]> {
 	try {
 		const conditions = [];
+
+		if (params?.userId) {
+			conditions.push(eq(applications.userId, params.userId));
+		}
 
 		if (params?.archived === "true") {
 			conditions.push(eq(applications.status, "archived"));

@@ -17,11 +17,18 @@ import {
 } from "./enums.ts";
 import { companies } from "./companies";
 import { contacts } from "./contacts";
+import { users } from "./users";
 
 export const applications = pgTable(
 	"applications",
 	{
 		id: uuid("id").defaultRandom().primaryKey(),
+
+		userId: uuid("user_id")
+			.references(() => users.id, {
+				onDelete: "cascade",
+			})
+			.notNull(),
 
 		companyId: uuid("company_id")
 			.references(() => companies.id, {
@@ -78,6 +85,8 @@ export const applications = pgTable(
 		archivedAt: timestamp("archived_at"),
 	},
 	(table) => [
+		index("applications_user_idx").on(table.userId),
+
 		index("applications_company_idx").on(table.companyId),
 
 		index("applications_contact_idx").on(table.contactId),

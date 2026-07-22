@@ -128,11 +128,11 @@ function DocumentRow({
     doc.mimeType && PREVIEW_TYPES.includes(doc.mimeType);
 
   return (
-    <div className="flex items-center gap-2 rounded-lg border border-input bg-transparent px-3 py-2">
+    <div className="flex min-w-0 items-center gap-2 rounded-lg border border-input bg-transparent px-3 py-2">
       <File className="size-4 shrink-0 text-muted-foreground" />
-      <div className="min-w-0 flex-1">
-        <div className="flex items-center gap-1.5">
-          <span className="truncate text-sm">{doc.filename}</span>
+      <div className="min-w-0 flex-1 overflow-hidden">
+        <div className="flex min-w-0 items-center gap-1.5">
+          <span className="min-w-0 truncate text-sm">{doc.filename}</span>
           <span className="shrink-0 rounded bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground">
             {DOCUMENT_TYPE_LABELS[doc.type] ?? doc.type}
           </span>
@@ -143,7 +143,7 @@ function DocumentRow({
           </p>
         )}
       </div>
-      <div className="flex items-center gap-1">
+      <div className="flex shrink-0 items-center gap-1">
         {canPreview && <DocumentPreview doc={doc} />}
         <a
           href={doc.storagePath}
@@ -222,7 +222,7 @@ export default function DocumentSection({ applicationId }: Props) {
   };
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex min-w-0 flex-col gap-3">
       <label className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
         <FileText className="h-3.5 w-3.5" />
         Documents
@@ -241,7 +241,7 @@ export default function DocumentSection({ applicationId }: Props) {
           <Loader2 className="size-5 animate-spin text-muted-foreground" />
         </div>
       ) : docs.length > 0 ? (
-        <div className="flex flex-col gap-2">
+        <div className="flex min-w-0 flex-col gap-2">
           {docs.map((doc) => (
             <DocumentRow
               key={doc.id}
@@ -257,12 +257,12 @@ export default function DocumentSection({ applicationId }: Props) {
         </p>
       )}
 
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 max-sm:flex-wrap">
         <select
           value={docType}
           onChange={(e) => setDocType(e.target.value)}
           disabled={uploading}
-          className="h-8 rounded-lg border border-input bg-transparent px-2 text-xs transition-colors outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:opacity-50"
+          className="h-8 min-w-0 flex-1 rounded-lg border border-input bg-transparent px-2 text-xs transition-colors outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:opacity-50"
         >
           {DOCUMENT_TYPES.map((t) => (
             <option key={t} value={t}>

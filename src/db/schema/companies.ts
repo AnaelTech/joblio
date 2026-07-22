@@ -1,21 +1,37 @@
-import { pgTable, text, timestamp, uuid, varchar } from "drizzle-orm/pg-core";
+import { index, pgTable, text, timestamp, uuid, varchar } from "drizzle-orm/pg-core";
 
-export const companies = pgTable("companies", {
-	id: uuid().defaultRandom().primaryKey(),
+import { users } from "./users";
 
-	name: varchar({ length: 255 }).notNull(),
+export const companies = pgTable(
+	"companies",
+	{
+		id: uuid().defaultRandom().primaryKey(),
 
-	website: text(),
+		userId: uuid("user_id")
+			.references(() => users.id, {
+				onDelete: "cascade",
+			})
+			.notNull(),
 
-	linkedin: text(),
+		name: varchar({ length: 255 }).notNull(),
 
-	industry: varchar({ length: 255 }),
+		website: text(),
 
-	size: varchar({ length: 100 }),
+		linkedin: text(),
 
-	location: varchar({ length: 255 }),
+		industry: varchar({ length: 255 }),
 
-	logo: text(),
+		size: varchar({ length: 100 }),
 
-	createdAt: timestamp("created_at").defaultNow().notNull(),
-});
+		location: varchar({ length: 255 }),
+
+		logo: text(),
+
+		createdAt: timestamp("created_at").defaultNow().notNull(),
+
+		updatedAt: timestamp("updated_at").defaultNow().notNull(),
+	},
+	(table) => [
+		index("companies_user_idx").on(table.userId),
+	],
+);

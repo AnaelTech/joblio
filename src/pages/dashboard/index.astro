@@ -33,10 +33,11 @@ import {
 import { format, formatDistanceToNow } from "date-fns";
 import { fr } from "date-fns/locale";
 
-const stats = await getDashboardStats();
-const statusBreakdown = await getStatusBreakdown();
-const recentActivities = await getRecentActivities();
-const upcomingFollowUps = await getUpcomingFollowUps();
+const userId = Astro.locals.user?.id!;
+const stats = await getDashboardStats(userId);
+const statusBreakdown = await getStatusBreakdown(userId);
+const recentActivities = await getRecentActivities(userId);
+const upcomingFollowUps = await getUpcomingFollowUps(userId);
 
 const maxCount = Math.max(...statusBreakdown.map((s) => s.count), 1);
 

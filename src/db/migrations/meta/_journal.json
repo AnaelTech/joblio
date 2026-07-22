@@ -15,6 +15,13 @@
       "when": 1784650870509,
       "tag": "0001_unusual_mother_askani",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1784723959941,
+      "tag": "0002_strong_valeria_richards",
+      "breakpoints": true
     }
   ]
 }

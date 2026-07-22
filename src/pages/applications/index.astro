@@ -12,12 +12,14 @@ import ApplicationsPage from "@/features/applications/components/ApplicationsPag
 import type { ApplicationData } from "@/features/applications/components/ApplicationModal";
 import SearchInput from "@/components/SearchInput.astro";
 
+const userId = Astro.locals.user?.id;
 const search = Astro.url.searchParams.get("q") ?? "";
 const statusFilter = Astro.url.searchParams.get("status") ?? "";
 const priorityFilter = Astro.url.searchParams.get("priority") ?? "";
 const archivedFilter = Astro.url.searchParams.get("archived") ?? "";
 
 const rows = await getApplications({
+  userId,
   search: search || undefined,
   status: statusFilter || undefined,
   priority: priorityFilter || undefined,

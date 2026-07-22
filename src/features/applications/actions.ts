@@ -11,18 +11,18 @@ import {
 } from "./schema";
 import { eq, ilike, and } from "drizzle-orm";
 
-async function findOrCreateCompany(name: string): Promise<string> {
+async function findOrCreateCompany(name: string, userId: string): Promise<string> {
 	const existing = await db
 		.select({ id: companies.id })
 		.from(companies)
-		.where(ilike(companies.name, name))
+		.where(and(ilike(companies.name, name), eq(companies.userId, userId)))
 		.limit(1);
 
 	if (existing.length > 0) return existing[0].id;
 
 	const [created] = await db
 		.insert(companies)
-		.values({ name })
+		.values({ name, userId })
 		.returning({ id: companies.id });
 
 	return created.id;
@@ -45,15 +45,17 @@ function getErrorMessage(e: unknown, fallback: string): string {
 }
 
 export async function createApplication(
+	userId: string,
 	input: CreateApplicationInput,
 ): Promise<{ success: true; id: string } | { success: false; error: string }> {
 	try {
 		const parsed = createApplicationSchema.parse(input);
-		const companyId = await findOrCreateCompany(parsed.companyName);
+		const companyId = await findOrCreateCompany(parsed.companyName, userId);
 
 		const [application] = await db
 			.insert(applications)
 			.values({
+				userId,
 				companyId,
 				title: parsed.title,
 				source: parsed.source,
@@ -88,6 +90,7 @@ export async function createApplication(
 
 export async function updateApplication(
 	id: string,
+	userId: string,
 	input: UpdateApplicationInput,
 ): Promise<{ success: true } | { success: false; error: string }> {
 	try {
@@ -96,6 +99,16 @@ export async function updateApplication(
 
 		if (parsed.status) changed.push(`statut → ${parsed.status}`);
 		if (parsed.priority) changed.push(`priorité → ${parsed.priority}`);
+
+		const [app] = await db
+			.select({ id: applications.id })
+			.from(applications)
+			.where(and(eq(applications.id, id), eq(applications.userId, userId)))
+			.limit(1);
+
+		if (!app) {
+			return { success: false, error: "Candidature introuvable" };
+		}
 
 		await db
 			.update(applications)
@@ -114,23 +127,26 @@ export async function updateApplication(
 
 export async function deleteApplication(
 	id: string,
+	userId: string,
 ): Promise<{ success: true } | { success: false; error: string }> {
 	try {
 		const [app] = await db
 			.select({ title: applications.title })
 			.from(applications)
-			.where(eq(applications.id, id))
+			.where(and(eq(applications.id, id), eq(applications.userId, userId)))
 			.limit(1);
 
-		if (app) {
-			await recordActivity(
-				id,
-				"deleted",
-				`Candidature supprimée : ${app.title}`,
-			);
-
-			await db.delete(applications).where(eq(applications.id, id));
+		if (!app) {
+			return { success: false, error: "Candidature introuvable" };
 		}
+
+		await recordActivity(
+			id,
+			"deleted",
+			`Candidature supprimée : ${app.title}`,
+		);
+
+		await db.delete(applications).where(eq(applications.id, id));
 
 		return { success: true };
 	} catch (e) {

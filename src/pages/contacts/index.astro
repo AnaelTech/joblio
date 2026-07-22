@@ -8,11 +8,13 @@ import { getContacts, getCompanyOptions } from "@/features/contacts/queries";
 import ContactsPage from "@/features/contacts/components/ContactsPage";
 import SearchInput from "@/components/SearchInput.astro";
 
+const userId = Astro.locals.user?.id;
 const search = Astro.url.searchParams.get("q") ?? "";
 const companyFilter = Astro.url.searchParams.get("companyId") ?? "";
-const companyOptions = await getCompanyOptions();
+const companyOptions = await getCompanyOptions(userId);
 
 const rows = await getContacts({
+	userId,
 	search: search || undefined,
 	companyId: companyFilter || undefined,
 });

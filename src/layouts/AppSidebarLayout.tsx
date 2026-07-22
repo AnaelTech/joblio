@@ -6,14 +6,19 @@ import {
 
 import AppSidebar from "./AppSidebar";
 
-export default function AppSidebarLayout({
-	children,
-}: {
+interface Props {
 	children: React.ReactNode;
-}) {
+	user: {
+		id: string;
+		name: string;
+		email: string;
+	} | null;
+}
+
+export default function AppSidebarLayout({ children, user }: Props) {
 	return (
 		<SidebarProvider>
-			<AppSidebar />
+			<AppSidebar user={user} />
 
 			<SidebarInset>
 				<header className="flex h-14 items-center gap-2 border-b px-4">

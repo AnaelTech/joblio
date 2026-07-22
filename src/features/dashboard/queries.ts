@@ -44,15 +44,19 @@ export interface FollowUpItem {
 	followUpDate: Date;
 }
 
-export async function getDashboardStats(): Promise<DashboardStats | null> {
+export async function getDashboardStats(userId: string): Promise<DashboardStats | null> {
 	try {
-		const [total] = await db.select({ count: count() }).from(applications);
+		const [total] = await db
+			.select({ count: count() })
+			.from(applications)
+			.where(eq(applications.userId, userId));
 
 		const [active] = await db
 			.select({ count: count() })
 			.from(applications)
 			.where(
 				and(
+					eq(applications.userId, userId),
 					isNull(applications.archivedAt),
 					inArray(applications.status, ["applied", "in_progress"]),
 				),
@@ -61,7 +65,7 @@ export async function getDashboardStats(): Promise<DashboardStats | null> {
 		const [offers] = await db
 			.select({ count: count() })
 			.from(applications)
-			.where(eq(applications.status, "offer"));
+			.where(and(eq(applications.userId, userId), eq(applications.status, "offer")));
 
 		const now = new Date();
 		const sevenDays = addDays(now, 7);
@@ -69,8 +73,10 @@ export async function getDashboardStats(): Promise<DashboardStats | null> {
 		const [interviewsCount] = await db
 			.select({ count: count() })
 			.from(interviews)
+			.innerJoin(applications, eq(interviews.applicationId, applications.id))
 			.where(
 				and(
+					eq(applications.userId, userId),
 					gte(interviews.scheduledAt, now),
 					lte(interviews.scheduledAt, sevenDays),
 				),
@@ -87,7 +93,7 @@ export async function getDashboardStats(): Promise<DashboardStats | null> {
 	}
 }
 
-export async function getStatusBreakdown(): Promise<StatusCount[]> {
+export async function getStatusBreakdown(userId: string): Promise<StatusCount[]> {
 	try {
 		return await db
 			.select({
@@ -95,6 +101,7 @@ export async function getStatusBreakdown(): Promise<StatusCount[]> {
 				count: count(),
 			})
 			.from(applications)
+			.where(eq(applications.userId, userId))
 			.groupBy(applications.status)
 			.orderBy(desc(count()));
 	} catch {
@@ -102,7 +109,7 @@ export async function getStatusBreakdown(): Promise<StatusCount[]> {
 	}
 }
 
-export async function getRecentActivities(limit = 10): Promise<ActivityItem[]> {
+export async function getRecentActivities(userId: string, limit = 10): Promise<ActivityItem[]> {
 	try {
 		return await db
 			.select({
@@ -116,6 +123,7 @@ export async function getRecentActivities(limit = 10): Promise<ActivityItem[]> {
 			.from(activities)
 			.innerJoin(applications, eq(activities.applicationId, applications.id))
 			.innerJoin(companies, eq(applications.companyId, companies.id))
+			.where(eq(applications.userId, userId))
 			.orderBy(desc(activities.createdAt))
 			.limit(limit);
 	} catch {
@@ -123,7 +131,7 @@ export async function getRecentActivities(limit = 10): Promise<ActivityItem[]> {
 	}
 }
 
-export async function getUpcomingFollowUps(days = 7): Promise<FollowUpItem[]> {
+export async function getUpcomingFollowUps(userId: string, days = 7): Promise<FollowUpItem[]> {
 	try {
 		const now = new Date();
 		const future = addDays(now, days);
@@ -139,6 +147,7 @@ export async function getUpcomingFollowUps(days = 7): Promise<FollowUpItem[]> {
 			.innerJoin(companies, eq(applications.companyId, companies.id))
 			.where(
 				and(
+					eq(applications.userId, userId),
 					isNotNull(applications.followUpDate),
 					gte(applications.followUpDate, now),
 					lte(applications.followUpDate, future),

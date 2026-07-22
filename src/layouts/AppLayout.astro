@@ -6,6 +6,7 @@ import ClientRouter from "astro/components/ClientRouter.astro";
 import "../styles/global.css";
 
 const { title = "Joblio" } = Astro.props;
+const user = Astro.locals.user;
 ---
 
 <!doctype html>
@@ -70,7 +71,7 @@ const { title = "Joblio" } = Astro.props;
 
 	<TooltipProvider client:load>
 
-		<AppSidebarLayout client:load>
+		<AppSidebarLayout user={user} client:load>
 			<main class="md:p-6">
 				<slot />
 			</main>

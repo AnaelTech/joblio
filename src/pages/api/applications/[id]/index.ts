@@ -3,7 +3,8 @@ import { updateApplication, deleteApplication } from "@/features/applications/ac
 
 export const prerender = false;
 
-export const PATCH: APIRoute = async ({ params, request }) => {
+export const PATCH: APIRoute = async ({ params, request, locals }) => {
+  const userId = locals.user?.id;
   const id = params.id;
   if (!id) {
     return new Response(JSON.stringify({ error: "ID requis" }), {
@@ -15,7 +16,7 @@ export const PATCH: APIRoute = async ({ params, request }) => {
   const text = await request.text();
   const body = JSON.parse(text || "{}");
 
-  const result = await updateApplication(id, body);
+  const result = await updateApplication(id, userId, body);
 
   if (result.success) {
     return new Response(JSON.stringify({ success: true }), {
@@ -30,7 +31,8 @@ export const PATCH: APIRoute = async ({ params, request }) => {
   });
 };
 
-export const DELETE: APIRoute = async ({ params }) => {
+export const DELETE: APIRoute = async ({ params, locals }) => {
+  const userId = locals.user?.id;
   const id = params.id;
   if (!id) {
     return new Response(JSON.stringify({ error: "ID requis" }), {
@@ -39,7 +41,7 @@ export const DELETE: APIRoute = async ({ params }) => {
     });
   }
 
-  const result = await deleteApplication(id);
+  const result = await deleteApplication(id, userId);
 
   if (result.success) {
     return new Response(JSON.stringify({ success: true }), {

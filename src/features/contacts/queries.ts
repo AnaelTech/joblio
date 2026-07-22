@@ -17,11 +17,16 @@ export interface ContactRow {
 }
 
 export async function getContacts(params?: {
+  userId?: string;
   search?: string;
   companyId?: string;
 }): Promise<ContactRow[]> {
   try {
     const conditions = [];
+
+    if (params?.userId) {
+      conditions.push(eq(companies.userId, params.userId));
+    }
 
     if (params?.search) {
       conditions.push(
@@ -60,13 +65,17 @@ export async function getContacts(params?: {
   }
 }
 
-export async function getCompanyOptions(): Promise<
+export async function getCompanyOptions(userId?: string): Promise<
   { id: string; name: string }[]
 > {
   try {
+    const conditions = [];
+    if (userId) conditions.push(eq(companies.userId, userId));
+
     return await db
       .select({ id: companies.id, name: companies.name })
       .from(companies)
+      .where(conditions.length > 0 ? and(...conditions) : undefined)
       .orderBy(companies.name);
   } catch {
     return [];

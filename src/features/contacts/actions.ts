@@ -1,17 +1,29 @@
 import { db } from "@/db/client";
 import { contacts } from "@/db/schema/contacts";
+import { companies } from "@/db/schema/companies";
 import { type CreateContactInput, updateContactSchema } from "./schema";
 import { z } from "zod";
-import { eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 
 function getErrorMessage(e: unknown, fallback: string): string {
 	return e instanceof Error ? e.message : fallback;
 }
 
 export async function createContact(
+	userId: string,
 	input: CreateContactInput,
 ): Promise<{ success: true; id: string } | { success: false; error: string }> {
 	try {
+		const [company] = await db
+			.select({ id: companies.id })
+			.from(companies)
+			.where(and(eq(companies.id, input.companyId), eq(companies.userId, userId)))
+			.limit(1);
+
+		if (!company) {
+			return { success: false, error: "Entreprise introuvable" };
+		}
+
 		const [contact] = await db
 			.insert(contacts)
 			.values({
@@ -33,10 +45,23 @@ export async function createContact(
 
 export async function updateContact(
 	id: string,
+	userId: string,
 	input: Record<string, unknown>,
 ): Promise<{ success: true } | { success: false; error: string }> {
 	try {
 		const parsed = updateContactSchema.parse(input);
+
+		const [contact] = await db
+			.select({ id: contacts.id })
+			.from(contacts)
+			.innerJoin(companies, eq(contacts.companyId, companies.id))
+			.where(and(eq(contacts.id, id), eq(companies.userId, userId)))
+			.limit(1);
+
+		if (!contact) {
+			return { success: false, error: "Contact introuvable" };
+		}
+
 		await db
 			.update(contacts)
 			.set({
@@ -60,8 +85,20 @@ export async function updateContact(
 
 export async function deleteContact(
 	id: string,
+	userId: string,
 ): Promise<{ success: true } | { success: false; error: string }> {
 	try {
+		const [contact] = await db
+			.select({ id: contacts.id })
+			.from(contacts)
+			.innerJoin(companies, eq(contacts.companyId, companies.id))
+			.where(and(eq(contacts.id, id), eq(companies.userId, userId)))
+			.limit(1);
+
+		if (!contact) {
+			return { success: false, error: "Contact introuvable" };
+		}
+
 		await db.delete(contacts).where(eq(contacts.id, id));
 		return { success: true };
 	} catch (e) {

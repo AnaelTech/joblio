@@ -43,7 +43,15 @@ const themes = [
   { value: "dark" as const, label: "Sombre", icon: Moon },
 ];
 
-export default function SettingsPage() {
+interface Props {
+  user: {
+    id: string;
+    name: string;
+    email: string;
+  };
+}
+
+export default function SettingsPage({ user }: Props) {
   const [theme, setThemeState] = useState<Theme>(getStoredTheme);
   const [resolved, setResolved] = useState<"light" | "dark">(() => {
     const t = getStoredTheme();
@@ -94,14 +102,16 @@ export default function SettingsPage() {
             <div class="space-y-4">
               <div class="grid gap-4 sm:grid-cols-2">
                 <div>
+                  <label class="mb-1.5 block text-sm font-medium">Nom</label>
+                  <input type="text" value={user.name} disabled
+                    class="h-8 w-full min-w-0 rounded-lg border border-input bg-muted/50 px-2.5 py-1 text-sm text-muted-foreground" />
+                </div>
+                <div>
                   <label class="mb-1.5 block text-sm font-medium">Email</label>
-                  <input type="email" value="admin@joblio.app" disabled
+                  <input type="email" value={user.email} disabled
                     class="h-8 w-full min-w-0 rounded-lg border border-input bg-muted/50 px-2.5 py-1 text-sm text-muted-foreground" />
                 </div>
               </div>
-              <p class="text-xs text-muted-foreground">
-                L'authentification sera disponible dans une version future.
-              </p>
             </div>
           </CardContent>
         </Card>

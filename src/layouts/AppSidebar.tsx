@@ -106,7 +106,15 @@ function NavItem({
   return inner;
 }
 
-function SidebarInner() {
+interface SidebarProps {
+  user?: {
+    id: string;
+    name: string;
+    email: string;
+  } | null;
+}
+
+function SidebarInner({ user }: SidebarProps) {
   const { state, open, setOpen, setOpenMobile, isMobile } = useSidebar();
   const activePath = useActivePath();
   const collapsed = !isMobile && state === "collapsed";
@@ -142,7 +150,7 @@ function SidebarInner() {
                   Joblio
                 </span>
                 <span className="truncate text-xs text-sidebar-foreground/60">
-                  Recruteur
+                  {user?.name ?? "Recruteur"}
                 </span>
               </div>
               {!isMobile && (
@@ -234,6 +242,6 @@ function SidebarInner() {
   );
 }
 
-export default function AppSidebar() {
-  return <SidebarInner />;
+export default function AppSidebar(props: SidebarProps) {
+  return <SidebarInner {...props} />;
 }

@@ -9,6 +9,7 @@ import { createCompanySchema } from "@/features/companies/schema";
 import { handleForm } from "@/lib/form";
 import FormError from "@/components/FormError.astro";
 
+const userId = Astro.locals.user?.id;
 let errors: Record<string, string> = {};
 let globalError = "";
 const values: Record<string, string> = { name: "", industry: "", size: "", location: "", website: "", linkedin: "" };
@@ -17,7 +18,7 @@ if (Astro.request.method === "POST") {
   const result = await handleForm(
     Astro.request,
     createCompanySchema,
-    (data) => createCompany(data),
+    (data) => createCompany(userId, data),
     values,
   );
 

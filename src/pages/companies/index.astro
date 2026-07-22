@@ -8,8 +8,9 @@ import { getCompanies } from "@/features/companies/queries";
 import CompaniesPage from "@/features/companies/components/CompaniesPage";
 import SearchInput from "@/components/SearchInput.astro";
 
+const userId = Astro.locals.user?.id;
 const search = Astro.url.searchParams.get("q") ?? "";
-const rows = await getCompanies(search || undefined);
+const rows = await getCompanies(userId, search || undefined);
 const hasFilters = Boolean(search);
 ---
 

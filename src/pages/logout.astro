@@ -1,0 +1,13 @@
+---
+export const prerender = false;
+
+import { logout } from "@/features/auth/actions";
+
+const token = Astro.cookies.get("session")?.value;
+if (token) {
+	await logout(token);
+}
+
+Astro.cookies.delete("session", { path: "/" });
+return Astro.redirect("/login");
+---

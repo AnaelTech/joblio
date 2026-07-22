@@ -11,7 +11,8 @@ import { INTERVIEW_TYPE_LABELS } from "@/features/interviews/schema";
 import { handleForm } from "@/lib/form";
 import FormError from "@/components/FormError.astro";
 
-const applicationOptions = await getApplicationOptions();
+const userId = Astro.locals.user?.id;
+const applicationOptions = await getApplicationOptions(userId);
 
 let errors: Record<string, string> = {};
 let globalError = "";

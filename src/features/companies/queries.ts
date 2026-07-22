@@ -1,6 +1,6 @@
 import { db } from "@/db/client";
 import { companies } from "@/db/schema/companies";
-import { desc, ilike, or } from "drizzle-orm";
+import { and, desc, eq, ilike, or } from "drizzle-orm";
 
 export interface CompanyRow {
   id: string;
@@ -13,9 +13,13 @@ export interface CompanyRow {
   createdAt: Date;
 }
 
-export async function getCompanies(search?: string): Promise<CompanyRow[]> {
+export async function getCompanies(userId?: string, search?: string): Promise<CompanyRow[]> {
   try {
     const conditions = [];
+
+    if (userId) {
+      conditions.push(eq(companies.userId, userId));
+    }
 
     if (search) {
       conditions.push(
@@ -30,7 +34,7 @@ export async function getCompanies(search?: string): Promise<CompanyRow[]> {
     return await db
       .select()
       .from(companies)
-      .where(conditions.length > 0 ? or(...conditions) : undefined)
+      .where(conditions.length > 0 ? and(...conditions) : undefined)
       .orderBy(desc(companies.createdAt));
   } catch {
     return [];

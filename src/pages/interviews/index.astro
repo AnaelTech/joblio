@@ -9,10 +9,12 @@ import { INTERVIEW_RESULT_LABELS } from "@/features/interviews/schema";
 import InterviewsPage from "@/features/interviews/components/InterviewsPage";
 import SearchInput from "@/components/SearchInput.astro";
 
+const userId = Astro.locals.user?.id;
 const search = Astro.url.searchParams.get("q") ?? "";
 const resultFilter = Astro.url.searchParams.get("result") ?? "";
 
 const rows = await getInterviews({
+	userId,
 	search: search || undefined,
 	result: resultFilter || undefined,
 });

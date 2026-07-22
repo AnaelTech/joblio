@@ -62,7 +62,7 @@ export async function uploadDocument(
       return { success: false, error: "Le fichier ne doit pas dépasser 10 Mo" };
     }
 
-    if (/[^a-zA-Z0-9._-]/.test(file.name)) {
+    if (/[\/\\\0<>:"|?*]/.test(file.name)) {
       return { success: false, error: "Nom de fichier invalide" };
     }
 

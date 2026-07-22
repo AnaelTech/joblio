@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, useRef } from "react";
+import { useEffect, useState, useCallback } from "react";
 import {
   Dialog,
   DialogContent,
@@ -116,7 +116,6 @@ export default function ApplicationModal({
 	const [tagSaving, setTagSaving] = useState<string | null>(null);
   const [showArchiveSuggestion, setShowArchiveSuggestion] = useState(false);
   const isArchived = selected?.status === "archived";
-  const lastSelectedId = useRef<string | null>(null);
 
   useEffect(() => {
     if (!feedback) return;
@@ -128,17 +127,12 @@ export default function ApplicationModal({
     if (!selectedId) return;
     const app = applications.find((a) => a.id === selectedId);
     if (!app) return;
-    if (selectedId !== lastSelectedId.current) {
-      lastSelectedId.current = selectedId;
-      setSelected(app);
-      setNotesDraft(app.notes ?? "");
-      setLocationDraft(app.location ?? "");
-      setOpen(true);
-      setFeedback(null);
-      setConfirmDelete(false);
-    } else {
-      setSelected(app);
-    }
+    setSelected(app);
+    setNotesDraft(app.notes ?? "");
+    setLocationDraft(app.location ?? "");
+    setOpen(true);
+    setFeedback(null);
+    setConfirmDelete(false);
   }, [selectedId, applications]);
 
   const closeModal = useCallback(() => {
