@@ -1,7 +1,8 @@
 import { db } from "@/db/client";
 import { interviews } from "@/db/schema/interviews";
 import { activities } from "@/db/schema/activities";
-import { type CreateInterviewInput } from "./schema";
+import { type CreateInterviewInput, updateInterviewSchema } from "./schema";
+import { z } from "zod";
 import { eq } from "drizzle-orm";
 
 function getErrorMessage(e: unknown, fallback: string): string {
@@ -47,28 +48,32 @@ export async function updateInterview(
 	input: Record<string, unknown>,
 ): Promise<{ success: true } | { success: false; error: string }> {
 	try {
+		const parsed = updateInterviewSchema.parse(input);
 		const data: Record<string, unknown> = {
-			type: input.type as string,
-			interviewer: (input.interviewer as string) ?? null,
-			duration: input.duration ?? null,
-			notes: (input.notes as string) ?? null,
+			type: parsed.type,
+			interviewer: parsed.interviewer ?? null,
+			duration: parsed.duration ?? null,
+			notes: parsed.notes ?? null,
 			updatedAt: new Date(),
 		};
 
-		if (input.scheduledAt) {
-			data.scheduledAt = new Date(input.scheduledAt as string);
-		} else if (input.scheduledAt === null || input.scheduledAt === "") {
+		if (parsed.scheduledAt) {
+			data.scheduledAt = new Date(parsed.scheduledAt);
+		} else if (parsed.scheduledAt === null) {
 			data.scheduledAt = null;
 		}
 
-		if (input.result) {
-			data.result = input.result as string;
+		if (parsed.result) {
+			data.result = parsed.result;
 		}
 
 		await db.update(interviews).set(data).where(eq(interviews.id, id));
 
 		return { success: true };
 	} catch (e) {
+		if (e instanceof z.ZodError) {
+			return { success: false, error: e.errors.map((err) => err.message).join(", ") };
+		}
 		return { success: false, error: getErrorMessage(e, "Erreur lors de la modification") };
 	}
 }

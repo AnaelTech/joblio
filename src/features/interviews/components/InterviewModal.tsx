@@ -111,6 +111,12 @@ export default function InterviewModal({
 	}, [onOpenChange]);
 
 	useEffect(() => {
+		if (!feedback) return;
+		const t = setTimeout(() => setFeedback(null), 9000);
+		return () => clearTimeout(t);
+	}, [feedback]);
+
+	useEffect(() => {
 		if (selectedId) {
 			const iv = interviews.find((a) => a.id === selectedId);
 			if (iv) {

@@ -2,7 +2,7 @@ import { z } from "zod";
 
 export const createTagSchema = z.object({
   name: z.string().min(1, "Le nom du tag est requis"),
-  color: z.string().optional(),
+  color: z.string().regex(/^#[0-9a-fA-F]{6}$/, "La couleur doit être un hexadécimal valide (#RRGGBB)").optional(),
 });
 
 export type CreateTagInput = z.infer<typeof createTagSchema>;

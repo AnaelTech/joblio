@@ -84,6 +84,12 @@ export default function ContactModal({
 	}, [onOpenChange]);
 
 	useEffect(() => {
+		if (!feedback) return;
+		const t = setTimeout(() => setFeedback(null), 9000);
+		return () => clearTimeout(t);
+	}, [feedback]);
+
+	useEffect(() => {
 		if (selectedId) {
 			const c = contacts.find((a) => a.id === selectedId);
 			if (c) {

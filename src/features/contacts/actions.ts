@@ -1,6 +1,7 @@
 import { db } from "@/db/client";
 import { contacts } from "@/db/schema/contacts";
-import { type CreateContactInput } from "./schema";
+import { type CreateContactInput, updateContactSchema } from "./schema";
+import { z } from "zod";
 import { eq } from "drizzle-orm";
 
 function getErrorMessage(e: unknown, fallback: string): string {
@@ -35,20 +36,24 @@ export async function updateContact(
 	input: Record<string, unknown>,
 ): Promise<{ success: true } | { success: false; error: string }> {
 	try {
+		const parsed = updateContactSchema.parse(input);
 		await db
 			.update(contacts)
 			.set({
-				name: input.name as string,
-				role: (input.role as string) ?? null,
-				email: (input.email as string) ?? null,
-				phone: (input.phone as string) ?? null,
-				linkedin: (input.linkedin as string) ?? null,
-				notes: (input.notes as string) ?? null,
+				name: parsed.name,
+				role: parsed.role ?? null,
+				email: parsed.email ?? null,
+				phone: parsed.phone ?? null,
+				linkedin: parsed.linkedin ?? null,
+				notes: parsed.notes ?? null,
 			})
 			.where(eq(contacts.id, id));
 
 		return { success: true };
 	} catch (e) {
+		if (e instanceof z.ZodError) {
+			return { success: false, error: e.errors.map((err) => err.message).join(", ") };
+		}
 		return { success: false, error: getErrorMessage(e, "Erreur lors de la modification") };
 	}
 }

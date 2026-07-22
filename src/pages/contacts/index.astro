@@ -3,9 +3,10 @@ export const prerender = false;
 
 import AppLayout from "@/layouts/AppLayout.astro";
 import EmptyState from "@/components/EmptyState.astro";
-import { ContactRound, Plus, Search, X, Building2 } from "lucide-react";
+import { ContactRound, Plus, X, Building2 } from "lucide-react";
 import { getContacts, getCompanyOptions } from "@/features/contacts/queries";
 import ContactsPage from "@/features/contacts/components/ContactsPage";
+import SearchInput from "@/components/SearchInput.astro";
 
 const search = Astro.url.searchParams.get("q") ?? "";
 const companyFilter = Astro.url.searchParams.get("companyId") ?? "";
@@ -37,17 +38,7 @@ const inputClass =
     </div>
 
     <form method="GET" id="filter-form" class="flex flex-wrap items-end gap-3">
-      <div class="relative min-w-0 flex-1 basis-[200px]">
-        <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-2.5">
-          <Search class="h-4 w-4 text-muted-foreground" />
-        </div>
-        <input
-          name="q"
-          placeholder="Rechercher par nom, email ou entreprise..."
-          value={search}
-          class={`${inputClass} pl-8`}
-        />
-      </div>
+      <SearchInput placeholder="Rechercher par nom, email ou entreprise..." value={search} class="relative min-w-0 flex-1 basis-[200px]" />
 
       <select name="companyId" class={`${inputClass} max-w-[200px]`}>
         <option value="" selected={companyFilter === ""}>
@@ -74,11 +65,6 @@ const inputClass =
       document.addEventListener("DOMContentLoaded", () => {
         const form = document.getElementById("filter-form");
         if (!form) return;
-        let debounceTimer;
-        form.querySelector("[name=q]")?.addEventListener("input", () => {
-          clearTimeout(debounceTimer);
-          debounceTimer = setTimeout(() => form.requestSubmit(), 300);
-        });
         form
           .querySelector("[name=companyId]")
           ?.addEventListener("change", () => form.requestSubmit());
@@ -106,25 +92,3 @@ const inputClass =
     )}
   </div>
 </AppLayout>
-
-<style is:global>
-  .btn-primary {
-    display: inline-flex;
-    height: 2rem;
-    align-items: center;
-    justify-content: center;
-    gap: 0.375rem;
-    border-radius: 0.5rem;
-    background: hsl(var(--primary));
-    padding: 0 0.75rem;
-    font-size: 0.875rem;
-    font-weight: 500;
-    color: hsl(var(--primary-foreground));
-    transition: background 0.15s;
-    border: none;
-    cursor: pointer;
-  }
-  .btn-primary:hover {
-    background: hsl(var(--primary) / 0.8);
-  }
-</style>

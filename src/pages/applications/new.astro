@@ -69,7 +69,7 @@ if (Astro.request.method === "POST") {
       href="/applications"
       class="mb-6 inline-flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
     >
-      <ArrowLeft class="h-4 w-4" />
+      <ArrowLeft className="h-4 w-4" />
       Retour aux candidatures
     </a>
 
@@ -80,8 +80,8 @@ if (Astro.request.method === "POST") {
 
     <FormError message={globalError} />
 
-    <Card class="mt-6">
-      <CardContent class="pt-6">
+    <Card className="mt-6">
+      <CardContent className="pt-6">
         <form method="POST" class="space-y-10">
           <input type="hidden" name="tagIds" id="tagIds" value={JSON.stringify(tagIds)} />
 
@@ -147,7 +147,6 @@ if (Astro.request.method === "POST") {
                   const checked = tagIds.includes(tag.id);
                   return (
                     <label
-                      key={tag.id}
                       class={`inline-flex cursor-pointer items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium transition-colors ${
                         checked
                           ? "ring-1 ring-foreground"
@@ -179,7 +178,7 @@ if (Astro.request.method === "POST") {
 
           <div class="flex items-center gap-3">
             <button type="submit" class="btn-primary">
-              <Plus class="h-4 w-4" />
+              <Plus className="h-4 w-4" />
               Créer la candidature
             </button>
             <a href="/applications" class="btn-ghost">Annuler</a>
@@ -214,8 +213,6 @@ if (Astro.request.method === "POST") {
   .textarea { display: flex; min-height: 4rem; width: 100%; border-radius: 0.5rem; border: 1px solid hsl(var(--border)); background: transparent; padding: 0.5rem 0.625rem; font-size: 0.875rem; transition: all 0.15s; outline: none; }
   .textarea::placeholder { color: hsl(var(--muted-foreground)); }
   .textarea:focus-visible { border-color: hsl(var(--ring)); box-shadow: 0 0 0 3px hsl(var(--ring) / 0.5); }
-  .btn-primary { display: inline-flex; height: 2rem; align-items: center; justify-content: center; gap: 0.375rem; border-radius: 0.5rem; background: hsl(var(--primary)); padding: 0 1rem; font-size: 0.875rem; font-weight: 500; color: hsl(var(--primary-foreground)); transition: background 0.15s; border: none; cursor: pointer; }
-  .btn-primary:hover { background: hsl(var(--primary) / 0.8); }
   .btn-ghost { display: inline-flex; height: 2rem; align-items: center; justify-content: center; border-radius: 0.5rem; padding: 0 1rem; font-size: 0.875rem; font-weight: 500; color: hsl(var(--muted-foreground)); transition: all 0.15s; }
   .btn-ghost:hover { background: hsl(var(--muted)); }
 </style>

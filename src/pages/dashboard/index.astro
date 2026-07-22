@@ -19,7 +19,8 @@ import {
 	Gift,
 	Clock,
 	ArrowRight,
-	FileText,
+  FileText,
+  SquareArrowUpRight
 } from "lucide-react";
 
 import {
@@ -77,7 +78,7 @@ const actionLabels: Record<string, string> = {
   </div>
 
   <div class="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-    <Card>
+    <Card className="transition-colors hover:bg-primary/5">
       <CardHeader>
         <CardTitle class="text-sm font-medium">Total candidatures</CardTitle>
         <CardAction>
@@ -85,14 +86,21 @@ const actionLabels: Record<string, string> = {
         </CardAction>
       </CardHeader>
       <CardContent>
-        <p class="text-2xl font-bold">{stats?.totalApplications ?? 0}</p>
-        <p class="text-xs text-muted-foreground">
-          Toutes candidatures confondues
-        </p>
+        <div class="flex items-end justify-between gap-2">
+          <div>
+            <p class="text-2xl font-bold">{stats?.totalApplications ?? 0}</p>
+            <p class="text-xs text-muted-foreground">
+              Toutes candidatures confondues
+            </p>
+          </div>
+          <a href="/applications" aria-label="Voir les candidatures" class="shrink-0 text-muted-foreground transition-colors hover:text-primary">
+            <SquareArrowUpRight class="h-4 w-4" />
+          </a>
+        </div>
       </CardContent>
     </Card>
 
-    <Card>
+    <Card className="transition-colors hover:bg-primary/5">
       <CardHeader>
         <CardTitle class="text-sm font-medium">En cours</CardTitle>
         <CardAction>
@@ -100,12 +108,19 @@ const actionLabels: Record<string, string> = {
         </CardAction>
       </CardHeader>
       <CardContent>
-        <p class="text-2xl font-bold">{stats?.activeApplications ?? 0}</p>
-        <p class="text-xs text-muted-foreground">Candidatures actives</p>
+        <div class="flex items-end justify-between gap-2">
+          <div>
+            <p class="text-2xl font-bold">{stats?.activeApplications ?? 0}</p>
+            <p class="text-xs text-muted-foreground">Candidatures actives</p>
+          </div>
+          <a href="/applications" aria-label="Voir les candidatures" class="shrink-0 text-muted-foreground transition-colors hover:text-primary">
+            <SquareArrowUpRight class="h-4 w-4" />
+          </a>
+        </div>
       </CardContent>
     </Card>
 
-    <Card>
+    <Card className="transition-colors hover:bg-primary/5">
       <CardHeader>
         <CardTitle class="text-sm font-medium">Entretiens à venir</CardTitle>
         <CardAction>
@@ -113,12 +128,19 @@ const actionLabels: Record<string, string> = {
         </CardAction>
       </CardHeader>
       <CardContent>
-        <p class="text-2xl font-bold">{stats?.upcomingInterviews ?? 0}</p>
-        <p class="text-xs text-muted-foreground">Dans les 7 prochains jours</p>
+        <div class="flex items-end justify-between gap-2">
+          <div>
+            <p class="text-2xl font-bold">{stats?.upcomingInterviews ?? 0}</p>
+            <p class="text-xs text-muted-foreground">Dans les 7 prochains jours</p>
+          </div>
+          <a href="/interviews" aria-label="Voir les entretiens" class="shrink-0 text-muted-foreground transition-colors hover:text-primary">
+            <SquareArrowUpRight class="h-4 w-4" />
+          </a>
+        </div>
       </CardContent>
     </Card>
 
-    <Card>
+    <Card className="transition-colors hover:bg-primary/5">
       <CardHeader>
         <CardTitle class="text-sm font-medium">Offres reçues</CardTitle>
         <CardAction>

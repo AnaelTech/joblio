@@ -1,20 +1,30 @@
 import { useState, useCallback, useMemo } from "react";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClientProvider } from "@tanstack/react-query";
+import { queryClient } from "@/lib/query-client";
 import { useApplications } from "@/features/applications/hooks";
 import ApplicationTable from "@/features/applications/components/ApplicationTable";
 import ApplicationModal from "@/features/applications/components/ApplicationModal";
 import type { ApplicationData } from "@/features/applications/components/ApplicationModal";
 
-const queryClient = new QueryClient();
-
 interface Props {
 	initialData: ApplicationData[];
+	q?: string;
+	status?: string;
+	priority?: string;
 	archived?: string;
 }
 
-function ApplicationsInner({ initialData, archived }: Props) {
+function ApplicationsInner({ initialData, q, status, priority, archived }: Props) {
 	const [selectedId, setSelectedId] = useState<string | null>(null);
-	const filters = useMemo(() => ({ archived: archived || undefined }), [archived]);
+	const filters = useMemo(
+		() => ({
+			q: q || undefined,
+			status: status || undefined,
+			priority: priority || undefined,
+			archived: archived || undefined,
+		}),
+		[q, status, priority, archived],
+	);
 	const { data } = useApplications(filters, initialData);
 	const applications = data ?? initialData;
 
@@ -44,10 +54,10 @@ function ApplicationsInner({ initialData, archived }: Props) {
 	);
 }
 
-export default function ApplicationsPage({ initialData, archived }: Props) {
+export default function ApplicationsPage({ initialData, q, status, priority, archived }: Props) {
 	return (
 		<QueryClientProvider client={queryClient}>
-			<ApplicationsInner initialData={initialData} archived={archived} />
+			<ApplicationsInner initialData={initialData} q={q} status={status} priority={priority} archived={archived} />
 		</QueryClientProvider>
 	);
 }

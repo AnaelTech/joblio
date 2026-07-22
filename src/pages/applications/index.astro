@@ -2,7 +2,7 @@
 export const prerender = false;
 
 import AppLayout from "@/layouts/AppLayout.astro";
-import { Search, Plus, X } from "lucide-react";
+import { Plus, X } from "lucide-react";
 import { getApplications } from "@/features/applications/queries";
 import {
   STATUS_LABELS,
@@ -10,6 +10,7 @@ import {
 } from "@/features/applications/constants";
 import ApplicationsPage from "@/features/applications/components/ApplicationsPage";
 import type { ApplicationData } from "@/features/applications/components/ApplicationModal";
+import SearchInput from "@/components/SearchInput.astro";
 
 const search = Astro.url.searchParams.get("q") ?? "";
 const statusFilter = Astro.url.searchParams.get("status") ?? "";
@@ -59,15 +60,7 @@ const initialData: ApplicationData[] = rows.map((app) => ({
     </div>
 
     <form method="GET" id="filter-form" class="flex flex-wrap items-end gap-3">
-      <div class="relative min-w-0 flex-1 basis-50">
-        <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-2.5">
-          <Search class="h-4 w-4 text-muted-foreground" />
-        </div>
-        <input
-          name="q" placeholder="Rechercher par titre ou entreprise..." value={search}
-          class={`${inputClass} pl-8`}
-        />
-      </div>
+      <SearchInput placeholder="Rechercher par titre ou entreprise..." value={search} class="relative min-w-0 flex-1 basis-50" />
 
       <select name="status" class={`${inputClass} w-full md:w-auto md:max-w-40`}>
         <option value="" selected={statusFilter === ""}>Tous les statuts</option>
@@ -99,27 +92,22 @@ const initialData: ApplicationData[] = rows.map((app) => ({
       document.addEventListener("DOMContentLoaded", () => {
         const form = document.getElementById("filter-form");
         if (!form) return;
-        let debounceTimer;
-        const q = form.querySelector("[name=q]");
         const status = form.querySelector("[name=status]");
         const priority = form.querySelector("[name=priority]");
         const archived = form.querySelector("[name=archived]");
         const submit = () => form.requestSubmit();
-        q?.addEventListener("input", () => {
-          clearTimeout(debounceTimer);
-          debounceTimer = setTimeout(submit, 300);
-        });
         status?.addEventListener("change", submit);
         priority?.addEventListener("change", submit);
         archived?.addEventListener("change", submit);
       });
     </script>
 
-    <ApplicationsPage initialData={initialData} archived={archivedFilter} client:load />
+    <ApplicationsPage
+      initialData={initialData}
+      q={search || undefined}
+      status={statusFilter || undefined}
+      priority={priorityFilter || undefined}
+      archived={archivedFilter || undefined}
+      client:load />
   </div>
 </AppLayout>
-
-<style is:global>
-  .btn-primary { display: inline-flex; height: 2rem; align-items: center; justify-content: center; gap: 0.375rem; border-radius: 0.5rem; background: hsl(var(--primary)); padding: 0 0.75rem; font-size: 0.875rem; font-weight: 500; color: hsl(var(--primary-foreground)); transition: background 0.15s; border: none; cursor: pointer; }
-  .btn-primary:hover { background: hsl(var(--primary) / 0.8); }
-</style>

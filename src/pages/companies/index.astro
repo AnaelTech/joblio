@@ -3,16 +3,14 @@ export const prerender = false;
 
 import AppLayout from "@/layouts/AppLayout.astro";
 import EmptyState from "@/components/EmptyState.astro";
-import { Building2, Plus, Search, X } from "lucide-react";
+import { Building2, Plus, X } from "lucide-react";
 import { getCompanies } from "@/features/companies/queries";
 import CompaniesPage from "@/features/companies/components/CompaniesPage";
+import SearchInput from "@/components/SearchInput.astro";
 
 const search = Astro.url.searchParams.get("q") ?? "";
 const rows = await getCompanies(search || undefined);
 const hasFilters = Boolean(search);
-
-const inputClass =
-	"h-8 w-full min-w-0 rounded-lg border border-input bg-transparent px-2.5 py-1 text-base transition-colors outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 md:text-sm";
 ---
 
 <AppLayout title="Entreprises - Joblio">
@@ -31,17 +29,7 @@ const inputClass =
 
     <div class="flex items-center gap-2">
       <form method="GET" id="filter-form" class="flex-1">
-        <div class="relative">
-          <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-2.5">
-            <Search class="h-4 w-4 text-muted-foreground" />
-          </div>
-          <input
-            name="q"
-            placeholder="Rechercher par nom, secteur ou ville..."
-            value={search}
-            class={`${inputClass} pl-8`}
-          />
-        </div>
+        <SearchInput placeholder="Rechercher par nom, secteur ou ville..." value={search} />
       </form>
       {hasFilters && (
         <a
@@ -53,20 +41,9 @@ const inputClass =
       )}
     </div>
 
-    <script>
-      document.addEventListener("DOMContentLoaded", () => {
-        const form = document.getElementById("filter-form");
-        if (!form) return;
-        let debounceTimer;
-        form.querySelector("[name=q]")?.addEventListener("input", () => {
-          clearTimeout(debounceTimer);
-          debounceTimer = setTimeout(() => form.requestSubmit(), 300);
-        });
-      });
-    </script>
 
     {rows.length > 0 ? (
-      <CompaniesPage client:load initialData={rows} />
+      <CompaniesPage client:load initialData={rows} q={search || undefined} />
     ) : (
       <EmptyState
         title="Aucune entreprise"
@@ -86,25 +63,3 @@ const inputClass =
     )}
   </div>
 </AppLayout>
-
-<style is:global>
-  .btn-primary {
-    display: inline-flex;
-    height: 2rem;
-    align-items: center;
-    justify-content: center;
-    gap: 0.375rem;
-    border-radius: 0.5rem;
-    background: hsl(var(--primary));
-    padding: 0 0.75rem;
-    font-size: 0.875rem;
-    font-weight: 500;
-    color: hsl(var(--primary-foreground));
-    transition: background 0.15s;
-    border: none;
-    cursor: pointer;
-  }
-  .btn-primary:hover {
-    background: hsl(var(--primary) / 0.8);
-  }
-</style>

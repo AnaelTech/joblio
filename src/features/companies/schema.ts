@@ -22,8 +22,18 @@ export const updateCompanySchema = z.object({
 	industry: z.string().nullable().optional(),
 	size: z.string().nullable().optional(),
 	location: z.string().nullable().optional(),
-	website: z.string().nullable().optional(),
-	linkedin: z.string().nullable().optional(),
+	website: z
+		.string()
+		.url("L'URL du site web n'est pas valide")
+		.nullable()
+		.optional()
+		.or(z.literal("")),
+	linkedin: z
+		.string()
+		.url("L'URL LinkedIn n'est pas valide")
+		.nullable()
+		.optional()
+		.or(z.literal("")),
 });
 
 export type CreateCompanyInput = z.infer<typeof createCompanySchema>;

@@ -1,5 +1,6 @@
 import { useState, useCallback, useMemo, useEffect } from "react";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClientProvider } from "@tanstack/react-query";
+import { queryClient } from "@/lib/query-client";
 import { useCompanies } from "@/features/companies/hooks";
 import CompanyModal from "@/features/companies/components/CompanyModal";
 import type { CompanyData } from "@/features/companies/components/CompanyModal";
@@ -10,17 +11,15 @@ import {
 	CheckCircle,
 } from "lucide-react";
 
-const queryClient = new QueryClient();
-const EMPTY_FILTERS = {};
-
 interface Props {
 	initialData: CompanyData[];
+	q?: string;
 }
 
-function CompaniesInner({ initialData }: Props) {
+function CompaniesInner({ initialData, q }: Props) {
 	const [selectedId, setSelectedId] = useState<string | null>(null);
 	const [toast, setToast] = useState<string | null>(null);
-	const filters = useMemo(() => EMPTY_FILTERS, []);
+	const filters = useMemo(() => ({ q: q || undefined }), [q]);
 	const { data } = useCompanies(filters, initialData);
 	const companies = data ?? initialData;
 
@@ -141,10 +140,10 @@ function CompaniesInner({ initialData }: Props) {
 	);
 }
 
-export default function CompaniesPage({ initialData }: Props) {
+export default function CompaniesPage({ initialData, q }: Props) {
 	return (
 		<QueryClientProvider client={queryClient}>
-			<CompaniesInner initialData={initialData} />
+			<CompaniesInner initialData={initialData} q={q} />
 		</QueryClientProvider>
 	);
 }

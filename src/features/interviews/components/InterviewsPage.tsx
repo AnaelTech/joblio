@@ -1,5 +1,6 @@
 import { useState, useCallback, useMemo, useEffect } from "react";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClientProvider } from "@tanstack/react-query";
+import { queryClient } from "@/lib/query-client";
 import { useInterviews } from "@/features/interviews/hooks";
 import InterviewModal from "@/features/interviews/components/InterviewModal";
 import type { InterviewData } from "@/features/interviews/components/InterviewModal";
@@ -15,7 +16,6 @@ import {
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 
-const queryClient = new QueryClient();
 const EMPTY_FILTERS = {};
 
 interface Props {

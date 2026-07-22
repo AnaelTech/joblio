@@ -1,5 +1,6 @@
 import { useState, useCallback, useMemo, useEffect } from "react";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClientProvider } from "@tanstack/react-query";
+import { queryClient } from "@/lib/query-client";
 import { useContacts } from "@/features/contacts/hooks";
 import ContactModal from "@/features/contacts/components/ContactModal";
 import type { ContactData } from "@/features/contacts/components/ContactModal";
@@ -10,7 +11,6 @@ import {
 	CheckCircle,
 } from "lucide-react";
 
-const queryClient = new QueryClient();
 const EMPTY_FILTERS = {};
 
 interface Props {

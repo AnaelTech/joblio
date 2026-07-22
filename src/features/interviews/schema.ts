@@ -9,7 +9,17 @@ export const createInterviewSchema = z.object({
   notes: z.string().optional(),
 });
 
+export const updateInterviewSchema = z.object({
+  type: z.enum(["phone_screen", "hr", "technical", "manager", "final", "other"]).optional(),
+  scheduledAt: z.string().nullable().optional(),
+  duration: z.coerce.number().int().positive().nullable().optional(),
+  interviewer: z.string().nullable().optional(),
+  result: z.string().nullable().optional(),
+  notes: z.string().nullable().optional(),
+});
+
 export type CreateInterviewInput = z.infer<typeof createInterviewSchema>;
+export type UpdateInterviewInput = z.infer<typeof updateInterviewSchema>;
 
 export const INTERVIEW_TYPE_LABELS: Record<string, string> = {
   phone_screen: "Phone screen",

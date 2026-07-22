@@ -1,6 +1,7 @@
 import { db } from "@/db/client";
 import { companies } from "@/db/schema/companies";
-import { type CreateCompanyInput } from "./schema";
+import { type CreateCompanyInput, updateCompanySchema } from "./schema";
+import { z } from "zod";
 import { eq } from "drizzle-orm";
 
 function getErrorMessage(e: unknown, fallback: string): string {
@@ -34,21 +35,25 @@ export async function updateCompany(
 	input: Partial<CreateCompanyInput>,
 ): Promise<{ success: true } | { success: false; error: string }> {
 	try {
+		const parsed = updateCompanySchema.parse(input);
 		await db
 			.update(companies)
 			.set({
-				name: input.name,
-				industry: input.industry ?? null,
-				size: input.size ?? null,
-				location: input.location ?? null,
-				website: input.website ?? null,
-				linkedin: input.linkedin ?? null,
+				name: parsed.name,
+				industry: parsed.industry ?? null,
+				size: parsed.size ?? null,
+				location: parsed.location ?? null,
+				website: parsed.website ?? null,
+				linkedin: parsed.linkedin ?? null,
 				updatedAt: new Date(),
 			})
 			.where(eq(companies.id, id));
 
 		return { success: true };
 	} catch (e) {
+		if (e instanceof z.ZodError) {
+			return { success: false, error: e.errors.map((err) => err.message).join(", ") };
+		}
 		return { success: false, error: getErrorMessage(e, "Erreur lors de la modification") };
 	}
 }

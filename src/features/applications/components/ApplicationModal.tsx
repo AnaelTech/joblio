@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import {
   Dialog,
   DialogContent,
@@ -113,8 +113,9 @@ export default function ApplicationModal({
   const addTagMutation = useAddApplicationTag();
   const removeTagMutation = useRemoveApplicationTag();
 	const [tagSaving, setTagSaving] = useState<string | null>(null);
-	const [showArchiveSuggestion, setShowArchiveSuggestion] = useState(false);
-	const isArchived = selected?.status === "archived";
+  const [showArchiveSuggestion, setShowArchiveSuggestion] = useState(false);
+  const isArchived = selected?.status === "archived";
+  const lastSelectedId = useRef<string | null>(null);
 
   useEffect(() => {
     if (!feedback) return;
@@ -122,41 +123,27 @@ export default function ApplicationModal({
     return () => clearTimeout(t);
   }, [feedback]);
 
-  const openModal = useCallback(
-    (id: string) => {
-      const app = applications.find((a) => a.id === id);
-      if (app) {
-        setSelected(app);
-        setNotesDraft(app.notes ?? "");
-        setLocationDraft(app.location ?? "");
-        setOpen(true);
-        setFeedback(null);
-        setConfirmDelete(false);
-      }
-    },
-    [applications],
-  );
+  useEffect(() => {
+    if (!selectedId) return;
+    const app = applications.find((a) => a.id === selectedId);
+    if (!app) return;
+    if (selectedId !== lastSelectedId.current) {
+      lastSelectedId.current = selectedId;
+      setSelected(app);
+      setNotesDraft(app.notes ?? "");
+      setLocationDraft(app.location ?? "");
+      setOpen(true);
+      setFeedback(null);
+      setConfirmDelete(false);
+    } else {
+      setSelected(app);
+    }
+  }, [selectedId, applications]);
 
   const closeModal = useCallback(() => {
     setOpen(false);
     onOpenChange?.(false);
   }, [onOpenChange]);
-
-	useEffect(() => {
-		if (!selectedId) return;
-		const app = applications.find((a) => a.id === selectedId);
-		if (!app) return;
-		setSelected(app);
-		setNotesDraft(app.notes ?? "");
-		setLocationDraft(app.location ?? "");
-		setOpen(true);
-	}, [selectedId]);
-
-	useEffect(() => {
-		if (!selected || !selectedId) return;
-		const app = applications.find((a) => a.id === selectedId);
-		if (app) setSelected(app);
-	}, [applications]);
 
   const handleStatusChange = (status: string) => {
     if (!selected) return;

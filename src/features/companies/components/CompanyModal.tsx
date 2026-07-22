@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import {
 	Dialog,
 	DialogContent,
@@ -83,7 +83,16 @@ export default function CompanyModal({
 	}, [onOpenChange]);
 
 	useEffect(() => {
-		if (selectedId) {
+		if (!feedback) return;
+		const t = setTimeout(() => setFeedback(null), 9000);
+		return () => clearTimeout(t);
+	}, [feedback]);
+
+	const lastSelectedId = useRef<string | null>(null);
+
+	useEffect(() => {
+		if (selectedId && selectedId !== lastSelectedId.current) {
+			lastSelectedId.current = selectedId;
 			const c = companies.find((a) => a.id === selectedId);
 			if (c) {
 				setSelected(c);
