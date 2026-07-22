@@ -1,0 +1,34 @@
+---
+import TooltipProvider from "../components/providers/TooltipProvider";
+import AppSidebarLayout from "../layouts/AppSidebarLayout";
+
+import "../styles/global.css";
+
+const { title = "Joblio" } = Astro.props;
+---
+
+<!doctype html>
+<html lang="fr">
+
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width" />
+	<title>{title}</title>
+</head>
+
+<body>
+
+	<TooltipProvider client:load>
+
+		<AppSidebarLayout client:load>
+			<main class="md:p-6">
+				<slot />
+			</main>
+
+		</AppSidebarLayout>
+
+	</TooltipProvider>
+
+</body>
+
+</html>

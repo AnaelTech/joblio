@@ -1,0 +1,121 @@
+---
+export const prerender = false;
+
+import AppLayout from "@/layouts/AppLayout.astro";
+import { Card, CardContent } from "@/components/ui/card";
+import { ArrowLeft, Plus } from "lucide-react";
+import { createContact } from "@/features/contacts/actions";
+import { createContactSchema } from "@/features/contacts/schema";
+import { getCompanyOptions } from "@/features/contacts/queries";
+import { handleForm } from "@/lib/form";
+import FormError from "@/components/FormError.astro";
+
+const companyOptions = await getCompanyOptions();
+
+let errors: Record<string, string> = {};
+let globalError = "";
+const values: Record<string, string> = { name: "", companyId: "", role: "", email: "", phone: "", linkedin: "", notes: "" };
+
+if (Astro.request.method === "POST") {
+  const result = await handleForm(
+    Astro.request,
+    createContactSchema,
+    (data) => createContact(data),
+    values,
+  );
+
+  if (result.success) return Astro.redirect("/contacts");
+
+  errors = result.errors;
+  globalError = result.globalError;
+  Object.assign(values, result.values);
+}
+---
+
+<AppLayout title="Nouveau contact - Joblio">
+  <div class="mx-auto max-w-4xl">
+    <a href="/contacts" class="mb-6 inline-flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground">
+      <ArrowLeft class="h-4 w-4" /> Retour aux contacts
+    </a>
+
+    <h1 class="text-2xl font-bold tracking-tight">Nouveau contact</h1>
+    <p class="mt-1 text-muted-foreground">Ajoutez un nouveau contact professionnel</p>
+
+    <FormError message={globalError} />
+
+    <Card class="mt-6">
+      <CardContent class="pt-6">
+        <form method="POST" class="space-y-10">
+          <div class="grid gap-6 sm:grid-cols-2">
+            <div class="sm:col-span-2">
+              <label for="name" class="mb-2 block text-sm font-medium">Nom <span class="text-red-500">*</span></label>
+              <input id="name" name="name" type="text" required value={values.name} class="input" placeholder="Prénom et nom" />
+              {errors.name && <p class="mt-1 text-xs text-red-500">{errors.name}</p>}
+            </div>
+
+            <div class="sm:col-span-2">
+              <label for="companyId" class="mb-2 block text-sm font-medium">Entreprise <span class="text-red-500">*</span></label>
+              <select id="companyId" name="companyId" required class="input">
+                <option value="" disabled selected={values.companyId === ""}>Sélectionnez une entreprise</option>
+                {companyOptions.map((c) => (
+                  <option key={c.id} value={c.id} selected={values.companyId === c.id}>{c.name}</option>
+                ))}
+              </select>
+              {errors.companyId && <p class="mt-1 text-xs text-red-500">{errors.companyId}</p>}
+              {companyOptions.length === 0 && (
+                <p class="mt-1 text-xs text-muted-foreground">Aucune entreprise. <a href="/companies/new" class="text-primary hover:underline">Créez-en une</a> d'abord.</p>
+              )}
+            </div>
+
+            <div>
+              <label for="role" class="mb-2 block text-sm font-medium">Poste</label>
+              <input id="role" name="role" type="text" value={values.role} class="input" placeholder="CTO, Recruteur, ..." />
+            </div>
+
+            <div>
+              <label for="email" class="mb-2 block text-sm font-medium">Email</label>
+              <input id="email" name="email" type="email" value={values.email} class="input" placeholder="email@example.com" />
+              {errors.email && <p class="mt-1 text-xs text-red-500">{errors.email}</p>}
+            </div>
+
+            <div>
+              <label for="phone" class="mb-2 block text-sm font-medium">Téléphone</label>
+              <input id="phone" name="phone" type="tel" value={values.phone} class="input" placeholder="+33 6 12 34 56 78" />
+            </div>
+
+            <div class="sm:col-span-2">
+              <label for="linkedin" class="mb-2 block text-sm font-medium">LinkedIn</label>
+              <input id="linkedin" name="linkedin" type="url" value={values.linkedin} class="input" placeholder="https://linkedin.com/in/..." />
+              {errors.linkedin && <p class="mt-1 text-xs text-red-500">{errors.linkedin}</p>}
+            </div>
+
+            <div class="sm:col-span-2">
+              <label for="notes" class="mb-2 block text-sm font-medium">Notes</label>
+              <textarea id="notes" name="notes" class="textarea" placeholder="Informations complémentaires...">{values.notes}</textarea>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-3">
+            <button type="submit" class="btn-primary">
+              <Plus class="h-4 w-4" /> Créer le contact
+            </button>
+            <a href="/contacts" class="btn-ghost">Annuler</a>
+          </div>
+        </form>
+      </CardContent>
+    </Card>
+  </div>
+</AppLayout>
+
+<style is:global>
+  .input { height: 2rem; width: 100%; min-width: 0; border-radius: 0.5rem; border: 1px solid hsl(var(--border)); background: transparent; padding: 0.25rem 0.625rem; font-size: 0.875rem; transition: all 0.15s; outline: none; }
+  .input::placeholder { color: hsl(var(--muted-foreground)); }
+  .input:focus-visible { border-color: hsl(var(--ring)); box-shadow: 0 0 0 3px hsl(var(--ring) / 0.5); }
+  .textarea { display: flex; min-height: 4rem; width: 100%; border-radius: 0.5rem; border: 1px solid hsl(var(--border)); background: transparent; padding: 0.5rem 0.625rem; font-size: 0.875rem; transition: all 0.15s; outline: none; }
+  .textarea::placeholder { color: hsl(var(--muted-foreground)); }
+  .textarea:focus-visible { border-color: hsl(var(--ring)); box-shadow: 0 0 0 3px hsl(var(--ring) / 0.5); }
+  .btn-primary { display: inline-flex; height: 2rem; align-items: center; justify-content: center; gap: 0.375rem; border-radius: 0.5rem; background: hsl(var(--primary)); padding: 0 1rem; font-size: 0.875rem; font-weight: 500; color: hsl(var(--primary-foreground)); transition: background 0.15s; border: none; cursor: pointer; }
+  .btn-primary:hover { background: hsl(var(--primary) / 0.8); }
+  .btn-ghost { display: inline-flex; height: 2rem; align-items: center; justify-content: center; border-radius: 0.5rem; padding: 0 1rem; font-size: 0.875rem; font-weight: 500; color: hsl(var(--muted-foreground)); transition: all 0.15s; }
+  .btn-ghost:hover { background: hsl(var(--muted)); }
+</style>

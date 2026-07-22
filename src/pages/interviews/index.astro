@@ -1,0 +1,130 @@
+---
+export const prerender = false;
+
+import AppLayout from "@/layouts/AppLayout.astro";
+import EmptyState from "@/components/EmptyState.astro";
+import { CalendarDays, Plus, Search, X } from "lucide-react";
+import { getInterviews } from "@/features/interviews/queries";
+import { INTERVIEW_RESULT_LABELS } from "@/features/interviews/schema";
+import InterviewsPage from "@/features/interviews/components/InterviewsPage";
+
+const search = Astro.url.searchParams.get("q") ?? "";
+const resultFilter = Astro.url.searchParams.get("result") ?? "";
+
+const rows = await getInterviews({
+	search: search || undefined,
+	result: resultFilter || undefined,
+});
+
+const hasFilters = Boolean(search || resultFilter);
+
+const inputClass =
+	"h-8 w-full min-w-0 rounded-lg border border-input bg-transparent px-2.5 py-1 text-base transition-colors outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 md:text-sm";
+---
+
+<AppLayout title="Entretiens - Joblio">
+  <div class="flex flex-col gap-6">
+    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <div>
+        <h1 class="text-2xl font-bold tracking-tight">Entretiens</h1>
+        <p class="text-muted-foreground">Suivez vos entretiens planifiés</p>
+      </div>
+      <a href="/interviews/new" class="btn-primary">
+        <Plus class="h-4 w-4" />
+        <span class="hidden sm:inline">Nouvel entretien</span>
+        <span class="sm:hidden">Ajouter</span>
+      </a>
+    </div>
+
+    <form method="GET" id="filter-form" class="flex flex-wrap items-end gap-3">
+      <div class="relative min-w-0 flex-1 basis-[200px]">
+        <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-2.5">
+          <Search class="h-4 w-4 text-muted-foreground" />
+        </div>
+        <input
+          name="q"
+          placeholder="Rechercher par poste, entreprise ou recruteur..."
+          value={search}
+          class={`${inputClass} pl-8`}
+        />
+      </div>
+
+      <select name="result" class={`${inputClass} max-w-[160px]`}>
+        <option value="" selected={resultFilter === ""}>
+          Tous les résultats
+        </option>
+        {Object.entries(INTERVIEW_RESULT_LABELS).map(([v, l]) => (
+          <option value={v} selected={resultFilter === v}>
+            {l}
+          </option>
+        ))}
+      </select>
+
+      {hasFilters && (
+        <a
+          href="/interviews"
+          class="inline-flex h-8 items-center gap-1.5 rounded-lg border border-input px-2.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
+        >
+          <X class="h-4 w-4" /> Réinitialiser
+        </a>
+      )}
+    </form>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const form = document.getElementById("filter-form");
+        if (!form) return;
+        let debounceTimer;
+        form.querySelector("[name=q]")?.addEventListener("input", () => {
+          clearTimeout(debounceTimer);
+          debounceTimer = setTimeout(() => form.requestSubmit(), 300);
+        });
+        form
+          .querySelector("[name=result]")
+          ?.addEventListener("change", () => form.requestSubmit());
+      });
+    </script>
+
+    {rows.length > 0 ? (
+      <InterviewsPage client:load initialData={rows} />
+    ) : (
+      <EmptyState
+        title="Aucun entretien"
+        description={
+          hasFilters
+            ? "Aucun résultat ne correspond aux filtres sélectionnés."
+            : "Commencez par ajouter votre premier entretien."
+        }
+        createHref="/interviews/new"
+        createLabel="Nouvel entretien"
+        hasFilters={hasFilters}
+      >
+        <Fragment slot="icon">
+          <CalendarDays class="h-6 w-6 text-muted-foreground" />
+        </Fragment>
+      </EmptyState>
+    )}
+  </div>
+</AppLayout>
+
+<style is:global>
+  .btn-primary {
+    display: inline-flex;
+    height: 2rem;
+    align-items: center;
+    justify-content: center;
+    gap: 0.375rem;
+    border-radius: 0.5rem;
+    background: hsl(var(--primary));
+    padding: 0 0.75rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: hsl(var(--primary-foreground));
+    transition: background 0.15s;
+    border: none;
+    cursor: pointer;
+  }
+  .btn-primary:hover {
+    background: hsl(var(--primary) / 0.8);
+  }
+</style>

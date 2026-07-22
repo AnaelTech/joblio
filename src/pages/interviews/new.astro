@@ -1,0 +1,118 @@
+---
+export const prerender = false;
+
+import AppLayout from "@/layouts/AppLayout.astro";
+import { Card, CardContent } from "@/components/ui/card";
+import { ArrowLeft, Plus } from "lucide-react";
+import { createInterview } from "@/features/interviews/actions";
+import { createInterviewSchema } from "@/features/interviews/schema";
+import { getApplicationOptions } from "@/features/interviews/queries";
+import { INTERVIEW_TYPE_LABELS } from "@/features/interviews/schema";
+import { handleForm } from "@/lib/form";
+import FormError from "@/components/FormError.astro";
+
+const applicationOptions = await getApplicationOptions();
+
+let errors: Record<string, string> = {};
+let globalError = "";
+const values: Record<string, string> = { applicationId: "", type: "phone_screen", scheduledAt: "", duration: "", interviewer: "", notes: "" };
+
+if (Astro.request.method === "POST") {
+  const result = await handleForm(
+    Astro.request,
+    createInterviewSchema,
+    (data) => createInterview(data),
+    values,
+  );
+
+  if (result.success) return Astro.redirect("/interviews");
+
+  errors = result.errors;
+  globalError = result.globalError;
+  Object.assign(values, result.values);
+}
+---
+
+<AppLayout title="Nouvel entretien - Joblio">
+  <div class="mx-auto max-w-4xl">
+    <a href="/interviews" class="mb-6 inline-flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground">
+      <ArrowLeft class="h-4 w-4" /> Retour aux entretiens
+    </a>
+
+    <h1 class="text-2xl font-bold tracking-tight">Nouvel entretien</h1>
+    <p class="mt-1 text-muted-foreground">Planifiez un entretien</p>
+
+    <FormError message={globalError} />
+
+    <Card class="mt-6">
+      <CardContent class="pt-6">
+        <form method="POST" class="space-y-10">
+          <div class="grid gap-6 sm:grid-cols-2">
+            <div class="sm:col-span-2">
+              <label for="applicationId" class="mb-2 block text-sm font-medium">Candidature <span class="text-red-500">*</span></label>
+              <select id="applicationId" name="applicationId" required class="input">
+                <option value="" disabled selected={values.applicationId === ""}>Sélectionnez une candidature</option>
+                {applicationOptions.map((a) => (
+                  <option key={a.id} value={a.id} selected={values.applicationId === a.id}>{a.label}</option>
+                ))}
+              </select>
+              {errors.applicationId && <p class="mt-1 text-xs text-red-500">{errors.applicationId}</p>}
+              {applicationOptions.length === 0 && (
+                <p class="mt-1 text-xs text-muted-foreground">Aucune candidature. <a href="/applications/new" class="text-primary hover:underline">Créez-en une</a> d'abord.</p>
+              )}
+            </div>
+
+            <div>
+              <label for="type" class="mb-2 block text-sm font-medium">Type <span class="text-red-500">*</span></label>
+              <select id="type" name="type" required class="input">
+                {Object.entries(INTERVIEW_TYPE_LABELS).map(([v, l]) => (
+                  <option value={v} selected={values.type === v}>{l}</option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label for="scheduledAt" class="mb-2 block text-sm font-medium">Date</label>
+              <input id="scheduledAt" name="scheduledAt" type="datetime-local" value={values.scheduledAt} class="input" />
+            </div>
+
+            <div>
+              <label for="duration" class="mb-2 block text-sm font-medium">Durée (minutes)</label>
+              <input id="duration" name="duration" type="number" min="1" value={values.duration} class="input" placeholder="60" />
+            </div>
+
+            <div>
+              <label for="interviewer" class="mb-2 block text-sm font-medium">Recruteur / Interlocuteur</label>
+              <input id="interviewer" name="interviewer" type="text" value={values.interviewer} class="input" placeholder="Nom du recruteur" />
+            </div>
+
+            <div class="sm:col-span-2">
+              <label for="notes" class="mb-2 block text-sm font-medium">Notes</label>
+              <textarea id="notes" name="notes" class="textarea" placeholder="Préparations, questions à poser...">{values.notes}</textarea>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-3">
+            <button type="submit" class="btn-primary">
+              <Plus class="h-4 w-4" /> Créer l'entretien
+            </button>
+            <a href="/interviews" class="btn-ghost">Annuler</a>
+          </div>
+        </form>
+      </CardContent>
+    </Card>
+  </div>
+</AppLayout>
+
+<style is:global>
+  .input { height: 2rem; width: 100%; min-width: 0; border-radius: 0.5rem; border: 1px solid hsl(var(--border)); background: transparent; padding: 0.25rem 0.625rem; font-size: 0.875rem; transition: all 0.15s; outline: none; }
+  .input::placeholder { color: hsl(var(--muted-foreground)); }
+  .input:focus-visible { border-color: hsl(var(--ring)); box-shadow: 0 0 0 3px hsl(var(--ring) / 0.5); }
+  .textarea { display: flex; min-height: 4rem; width: 100%; border-radius: 0.5rem; border: 1px solid hsl(var(--border)); background: transparent; padding: 0.5rem 0.625rem; font-size: 0.875rem; transition: all 0.15s; outline: none; }
+  .textarea::placeholder { color: hsl(var(--muted-foreground)); }
+  .textarea:focus-visible { border-color: hsl(var(--ring)); box-shadow: 0 0 0 3px hsl(var(--ring) / 0.5); }
+  .btn-primary { display: inline-flex; height: 2rem; align-items: center; justify-content: center; gap: 0.375rem; border-radius: 0.5rem; background: hsl(var(--primary)); padding: 0 1rem; font-size: 0.875rem; font-weight: 500; color: hsl(var(--primary-foreground)); transition: background 0.15s; border: none; cursor: pointer; }
+  .btn-primary:hover { background: hsl(var(--primary) / 0.8); }
+  .btn-ghost { display: inline-flex; height: 2rem; align-items: center; justify-content: center; border-radius: 0.5rem; padding: 0 1rem; font-size: 0.875rem; font-weight: 500; color: hsl(var(--muted-foreground)); transition: all 0.15s; }
+  .btn-ghost:hover { background: hsl(var(--muted)); }
+</style>

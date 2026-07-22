@@ -1,0 +1,261 @@
+---
+export const prerender = false;
+
+import AppLayout from "@/layouts/AppLayout.astro";
+
+import {
+	Card,
+	CardContent,
+	CardHeader,
+	CardTitle,
+	CardDescription,
+	CardAction,
+} from "@/components/ui/card";
+
+import {
+	BriefcaseBusiness,
+	TrendingUp,
+	CalendarDays,
+	Gift,
+	Clock,
+	ArrowRight,
+	FileText,
+} from "lucide-react";
+
+import {
+	getDashboardStats,
+	getStatusBreakdown,
+	getRecentActivities,
+	getUpcomingFollowUps,
+} from "@/features/dashboard/queries";
+
+import { format, formatDistanceToNow } from "date-fns";
+import { fr } from "date-fns/locale";
+
+const stats = await getDashboardStats();
+const statusBreakdown = await getStatusBreakdown();
+const recentActivities = await getRecentActivities();
+const upcomingFollowUps = await getUpcomingFollowUps();
+
+const maxCount = Math.max(...statusBreakdown.map((s) => s.count), 1);
+
+const statusLabels: Record<string, string> = {
+	draft: "Brouillon",
+	saved: "Sauvegardée",
+	applied: "Candidaté",
+	in_progress: "En cours",
+	offer: "Offre",
+	accepted: "Acceptée",
+	rejected: "Refusée",
+	withdrawn: "Retirée",
+	ghosted: "Sans réponse",
+	archived: "Archivée",
+};
+
+const actionLabels: Record<string, string> = {
+	created: "Candidature créée",
+	updated: "Candidature modifiée",
+	status_changed: "Statut changé",
+	follow_up: "Relance effectuée",
+	note_added: "Note ajoutée",
+	document_added: "Document ajouté",
+	document_removed: "Document supprimé",
+	interview_scheduled: "Entretien planifié",
+	interview_completed: "Entretien terminé",
+	archived: "Candidature archivée",
+};
+---
+
+<AppLayout title="Dashboard - Joblio">
+  <div class="flex items-center justify-between">
+    <div>
+      <h1 class="text-2xl font-bold tracking-tight">Dashboard</h1>
+      <p class="text-muted-foreground">
+        Vue d'ensemble de votre recherche d'emploi
+      </p>
+    </div>
+  </div>
+
+  <div class="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+    <Card>
+      <CardHeader>
+        <CardTitle class="text-sm font-medium">Total candidatures</CardTitle>
+        <CardAction>
+          <BriefcaseBusiness class="h-4 w-4 text-muted-foreground" />
+        </CardAction>
+      </CardHeader>
+      <CardContent>
+        <p class="text-2xl font-bold">{stats?.totalApplications ?? 0}</p>
+        <p class="text-xs text-muted-foreground">
+          Toutes candidatures confondues
+        </p>
+      </CardContent>
+    </Card>
+
+    <Card>
+      <CardHeader>
+        <CardTitle class="text-sm font-medium">En cours</CardTitle>
+        <CardAction>
+          <TrendingUp class="h-4 w-4 text-muted-foreground" />
+        </CardAction>
+      </CardHeader>
+      <CardContent>
+        <p class="text-2xl font-bold">{stats?.activeApplications ?? 0}</p>
+        <p class="text-xs text-muted-foreground">Candidatures actives</p>
+      </CardContent>
+    </Card>
+
+    <Card>
+      <CardHeader>
+        <CardTitle class="text-sm font-medium">Entretiens à venir</CardTitle>
+        <CardAction>
+          <CalendarDays class="h-4 w-4 text-muted-foreground" />
+        </CardAction>
+      </CardHeader>
+      <CardContent>
+        <p class="text-2xl font-bold">{stats?.upcomingInterviews ?? 0}</p>
+        <p class="text-xs text-muted-foreground">Dans les 7 prochains jours</p>
+      </CardContent>
+    </Card>
+
+    <Card>
+      <CardHeader>
+        <CardTitle class="text-sm font-medium">Offres reçues</CardTitle>
+        <CardAction>
+          <Gift class="h-4 w-4 text-muted-foreground" />
+        </CardAction>
+      </CardHeader>
+      <CardContent>
+        <p class="text-2xl font-bold">{stats?.offersReceived ?? 0}</p>
+        <p class="text-xs text-muted-foreground">Propositions d'embauche</p>
+      </CardContent>
+    </Card>
+  </div>
+
+  <div class="mt-6 grid gap-6 lg:grid-cols-2">
+    <Card>
+      <CardHeader>
+        <CardTitle>Répartition par statut</CardTitle>
+        <CardDescription>
+          Nombre de candidatures par état
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        {
+          statusBreakdown.length > 0 ? (
+            <div class="space-y-3">
+              {statusBreakdown.map((item) => {
+                const width = (item.count / maxCount) * 100;
+                return (
+                  <div key={item.status} class="space-y-1">
+                    <div class="flex items-center justify-between text-sm">
+                      <span>{statusLabels[item.status] ?? item.status}</span>
+                      <span class="font-medium">{item.count}</span>
+                    </div>
+                    <div class="h-2 w-full overflow-hidden rounded-full bg-muted">
+                      <div
+                        class="h-full rounded-full bg-primary transition-all"
+                        style={`width: ${width}%`}
+                      />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <p class="text-sm text-muted-foreground">
+              Aucune candidature pour le moment. Commencez par en ajouter une.
+            </p>
+          )
+        }
+      </CardContent>
+    </Card>
+
+    <Card>
+      <CardHeader>
+        <CardTitle>Activité récente</CardTitle>
+        <CardDescription>
+          Dernières actions sur vos candidatures
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        {
+          recentActivities.length > 0 ? (
+            <div class="space-y-4">
+              {recentActivities.map((activity) => (
+                <div key={activity.id} class="flex items-start gap-3">
+                  <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10">
+                    <FileText class="h-4 w-4 text-primary" />
+                  </div>
+                  <div class="min-w-0 flex-1 space-y-0.5">
+                    <p class="truncate text-sm font-medium">
+                      {actionLabels[activity.action] ?? activity.action}
+                    </p>
+                    <p class="truncate text-xs text-muted-foreground">
+                      {activity.applicationTitle} · {activity.companyName}
+                    </p>
+                    <p class="text-xs text-muted-foreground">
+                      {formatDistanceToNow(new Date(activity.createdAt), {
+                        addSuffix: true,
+                        locale: fr,
+                      })}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p class="text-sm text-muted-foreground">
+              Aucune activité récente.
+            </p>
+          )
+        }
+      </CardContent>
+    </Card>
+  </div>
+
+  {
+    upcomingFollowUps.length > 0 && (
+      <div class="mt-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Relances à venir</CardTitle>
+            <CardDescription>
+              Candidatures nécessitant une relance dans les 7 jours
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div class="space-y-3">
+              {upcomingFollowUps.map((followUp) => (
+                <div
+                  key={followUp.id}
+                  class="flex items-center justify-between rounded-lg border p-3"
+                >
+                  <div class="flex min-w-0 items-center gap-3">
+                    <Clock class="h-4 w-4 shrink-0 text-amber-500" />
+                    <div class="min-w-0">
+                      <p class="truncate text-sm font-medium">
+                        {followUp.title}
+                      </p>
+                      <p class="truncate text-xs text-muted-foreground">
+                        {followUp.companyName}
+                      </p>
+                    </div>
+                  </div>
+                  <div class="flex shrink-0 items-center gap-2">
+                    <span class="text-xs text-muted-foreground">
+                      {format(new Date(followUp.followUpDate), "dd MMM", {
+                        locale: fr,
+                      })}
+                    </span>
+                    <ArrowRight class="h-4 w-4 text-muted-foreground" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
+</AppLayout>

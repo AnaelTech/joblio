@@ -1,0 +1,221 @@
+---
+export const prerender = false;
+
+import AppLayout from "@/layouts/AppLayout.astro";
+import { Card, CardContent } from "@/components/ui/card";
+import { ArrowLeft, Plus } from "lucide-react";
+import { createApplication } from "@/features/applications/actions";
+import { createApplicationSchema } from "@/features/applications/schema";
+import {
+  SOURCE_LABELS,
+  STATUS_LABELS,
+  PRIORITY_LABELS,
+  REMOTE_LABELS,
+} from "@/features/applications/schema";
+import { getTags } from "@/features/tags/queries";
+import FormError from "@/components/FormError.astro";
+
+const allTags = await getTags();
+
+let errors: Record<string, string> = {};
+let globalError = "";
+const values: Record<string, string> = {
+  companyName: "",
+  title: "",
+  source: "linkedin",
+  status: "applied",
+  priority: "medium",
+  location: "",
+  remoteType: "",
+  notes: "",
+};
+let tagIds: string[] = [];
+
+if (Astro.request.method === "POST") {
+  const text = await Astro.request.text();
+  const params = new URLSearchParams(text);
+
+  const raw: Record<string, string | undefined> = {};
+  for (const key of params.keys()) {
+    raw[key] = params.get(key) ?? undefined;
+  }
+  Object.assign(values, raw);
+
+  const parsed = createApplicationSchema.safeParse(raw);
+  if (parsed.success) tagIds = parsed.data.tagIds ?? [];
+
+  if (parsed.success) {
+    const result = await createApplication(parsed.data);
+
+    if (result.success) {
+      return Astro.redirect("/applications");
+    }
+
+    globalError = result.error;
+  } else {
+    for (const issue of parsed.error.issues) {
+      const path = issue.path.join(".");
+      if (!errors[path]) {
+        errors[path] = issue.message;
+      }
+    }
+  }
+}
+---
+
+<AppLayout title="Nouvelle candidature - Joblio">
+  <div class="mx-auto max-w-4xl">
+    <a
+      href="/applications"
+      class="mb-6 inline-flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
+    >
+      <ArrowLeft class="h-4 w-4" />
+      Retour aux candidatures
+    </a>
+
+    <h1 class="text-2xl font-bold tracking-tight">Nouvelle candidature</h1>
+    <p class="mt-1 text-muted-foreground">
+      Ajoutez une nouvelle candidature à votre suivi
+    </p>
+
+    <FormError message={globalError} />
+
+    <Card class="mt-6">
+      <CardContent class="pt-6">
+        <form method="POST" class="space-y-10">
+          <input type="hidden" name="tagIds" id="tagIds" value={JSON.stringify(tagIds)} />
+
+          <div class="grid gap-6 sm:grid-cols-2">
+            <div class="sm:col-span-2">
+              <label for="companyName" class="mb-2 block text-sm font-medium">Entreprise <span class="text-red-500">*</span></label>
+              <input id="companyName" name="companyName" type="text" required value={values.companyName} class="input" placeholder="Nom de l'entreprise" />
+              {errors.companyName && <p class="mt-1 text-xs text-red-500">{errors.companyName}</p>}
+            </div>
+
+            <div class="sm:col-span-2">
+              <label for="title" class="mb-2 block text-sm font-medium">Poste <span class="text-red-500">*</span></label>
+              <input id="title" name="title" type="text" required value={values.title} class="input" placeholder="Intitulé du poste" />
+              {errors.title && <p class="mt-1 text-xs text-red-500">{errors.title}</p>}
+            </div>
+
+            <div>
+              <label for="source" class="mb-2 block text-sm font-medium">Source <span class="text-red-500">*</span></label>
+              <select id="source" name="source" required class="input">
+                {Object.entries(SOURCE_LABELS).map(([value, label]) => (
+                  <option value={value} selected={values.source === value}>{label}</option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label for="status" class="mb-2 block text-sm font-medium">Statut</label>
+              <select id="status" name="status" class="input">
+                {Object.entries(STATUS_LABELS).map(([value, label]) => (
+                  <option value={value} selected={values.status === value}>{label}</option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label for="priority" class="mb-2 block text-sm font-medium">Priorité</label>
+              <select id="priority" name="priority" class="input">
+                {Object.entries(PRIORITY_LABELS).map(([value, label]) => (
+                  <option value={value} selected={values.priority === value}>{label}</option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label for="remoteType" class="mb-2 block text-sm font-medium">Type de télétravail</label>
+              <select id="remoteType" name="remoteType" class="input">
+                <option value="" selected={values.remoteType === ""}>Non précisé</option>
+                {Object.entries(REMOTE_LABELS).map(([value, label]) => (
+                  <option value={value} selected={values.remoteType === value}>{label}</option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label for="location" class="mb-2 block text-sm font-medium">Localisation</label>
+              <input id="location" name="location" type="text" value={values.location} class="input" placeholder="Ville, pays" />
+            </div>
+
+            <div class="sm:col-span-2">
+              <label class="mb-2 block text-sm font-medium">Tags</label>
+              <div class="flex flex-wrap gap-2">
+                {allTags.map((tag) => {
+                  const checked = tagIds.includes(tag.id);
+                  return (
+                    <label
+                      key={tag.id}
+                      class={`inline-flex cursor-pointer items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium transition-colors ${
+                        checked
+                          ? "ring-1 ring-foreground"
+                          : "ring-1 ring-transparent hover:ring-muted-foreground"
+                      }`}
+                      style={{
+                        backgroundColor: tag.color ? `${tag.color}20` : undefined,
+                        color: tag.color ?? undefined,
+                      }}
+                    >
+                      <input type="checkbox" checked={checked} data-tag-id={tag.id} class="hidden" />
+                      {tag.name}
+                    </label>
+                  );
+                })}
+                {allTags.length === 0 && (
+                  <p class="text-xs text-muted-foreground">
+                    Aucun tag. <a href="/tags/new" class="text-primary hover:underline">Créez-en un</a> d'abord.
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
+
+          <div class="pt-4">
+            <label for="notes" class="mb-2 block text-sm font-medium">Notes</label>
+            <textarea id="notes" name="notes" class="textarea" placeholder="Informations complémentaires...">{values.notes}</textarea>
+          </div>
+
+          <div class="flex items-center gap-3">
+            <button type="submit" class="btn-primary">
+              <Plus class="h-4 w-4" />
+              Créer la candidature
+            </button>
+            <a href="/applications" class="btn-ghost">Annuler</a>
+          </div>
+        </form>
+      </CardContent>
+    </Card>
+  </div>
+</AppLayout>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const hiddenInput = document.getElementById("tagIds");
+    if (!hiddenInput) return;
+    const checkboxes = document.querySelectorAll("[data-tag-id]");
+    checkboxes.forEach((cb) => {
+      cb.addEventListener("change", () => {
+        const ids = [];
+        checkboxes.forEach((c) => {
+          if (c.checked) ids.push(c.dataset.tagId);
+        });
+        hiddenInput.value = JSON.stringify(ids);
+      });
+    });
+  });
+</script>
+
+<style is:global>
+  .input { height: 2rem; width: 100%; min-width: 0; border-radius: 0.5rem; border: 1px solid hsl(var(--border)); background: transparent; padding: 0.25rem 0.625rem; font-size: 0.875rem; transition: all 0.15s; outline: none; }
+  .input::placeholder { color: hsl(var(--muted-foreground)); }
+  .input:focus-visible { border-color: hsl(var(--ring)); box-shadow: 0 0 0 3px hsl(var(--ring) / 0.5); }
+  .textarea { display: flex; min-height: 4rem; width: 100%; border-radius: 0.5rem; border: 1px solid hsl(var(--border)); background: transparent; padding: 0.5rem 0.625rem; font-size: 0.875rem; transition: all 0.15s; outline: none; }
+  .textarea::placeholder { color: hsl(var(--muted-foreground)); }
+  .textarea:focus-visible { border-color: hsl(var(--ring)); box-shadow: 0 0 0 3px hsl(var(--ring) / 0.5); }
+  .btn-primary { display: inline-flex; height: 2rem; align-items: center; justify-content: center; gap: 0.375rem; border-radius: 0.5rem; background: hsl(var(--primary)); padding: 0 1rem; font-size: 0.875rem; font-weight: 500; color: hsl(var(--primary-foreground)); transition: background 0.15s; border: none; cursor: pointer; }
+  .btn-primary:hover { background: hsl(var(--primary) / 0.8); }
+  .btn-ghost { display: inline-flex; height: 2rem; align-items: center; justify-content: center; border-radius: 0.5rem; padding: 0 1rem; font-size: 0.875rem; font-weight: 500; color: hsl(var(--muted-foreground)); transition: all 0.15s; }
+  .btn-ghost:hover { background: hsl(var(--muted)); }
+</style>

@@ -1,0 +1,43 @@
+---
+import { Card } from "@/components/ui/card";
+import { Plus, X } from "lucide-react";
+
+interface Props {
+  title: string;
+  description: string;
+  hasFilters?: boolean;
+  createHref?: string;
+  createLabel?: string;
+}
+
+const { title, description, hasFilters, createHref, createLabel } = Astro.props;
+---
+<Card>
+  <div class="flex flex-col items-center gap-3 px-6 py-12 text-center">
+    <div class="flex h-12 w-12 items-center justify-center rounded-full bg-muted">
+      <slot name="icon" />
+    </div>
+    <div>
+      <p class="font-medium">{title}</p>
+      <p class="mt-1 text-sm text-muted-foreground">{description}</p>
+    </div>
+    {!hasFilters && createHref && createLabel && (
+      <a
+        href={createHref}
+        class="inline-flex h-8 items-center justify-center gap-1.5 rounded-lg bg-primary px-2.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/80"
+      >
+        <Plus class="h-4 w-4" />
+        {createLabel}
+      </a>
+    )}
+    {hasFilters && (
+      <a
+        href={createHref ?? "."}
+        class="inline-flex h-8 items-center justify-center gap-1.5 rounded-lg border border-input px-2.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+      >
+        <X class="h-4 w-4" />
+        Réinitialiser les filtres
+      </a>
+    )}
+  </div>
+</Card>

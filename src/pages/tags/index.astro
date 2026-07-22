@@ -1,0 +1,88 @@
+---
+export const prerender = false;
+
+import AppLayout from "@/layouts/AppLayout.astro";
+import { Card, CardContent } from "@/components/ui/card";
+import EmptyState from "@/components/EmptyState.astro";
+import { Tags, Plus, Search, X } from "lucide-react";
+import { getTags } from "@/features/tags/queries";
+
+const search = Astro.url.searchParams.get("q") ?? "";
+const rows = await getTags(search || undefined);
+const hasFilters = Boolean(search);
+const inputClass = "h-8 w-full min-w-0 rounded-lg border border-input bg-transparent px-2.5 py-1 text-base transition-colors outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 md:text-sm";
+---
+
+<AppLayout title="Tags - Joblio">
+  <div class="flex flex-col gap-6">
+    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <div>
+        <h1 class="text-2xl font-bold tracking-tight">Tags</h1>
+        <p class="text-muted-foreground">Gérez vos tags pour catégoriser les candidatures</p>
+      </div>
+      <a href="/tags/new" class="btn-primary">
+        <Plus class="h-4 w-4" />
+        <span class="hidden sm:inline">Nouveau tag</span>
+        <span class="sm:hidden">Ajouter</span>
+      </a>
+    </div>
+
+    <form method="GET" id="filter-form" class="flex flex-wrap items-end gap-3">
+      <div class="relative min-w-0 flex-1 basis-[200px]">
+        <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-2.5">
+          <Search class="h-4 w-4 text-muted-foreground" />
+        </div>
+        <input name="q" placeholder="Rechercher un tag..." value={search} class={`${inputClass} pl-8`} />
+      </div>
+      {hasFilters && (
+        <a href="/tags" class="inline-flex h-8 items-center gap-1.5 rounded-lg border border-input px-2.5 text-sm text-muted-foreground transition-colors hover:text-foreground">
+          <X class="h-4 w-4" /> Réinitialiser
+        </a>
+      )}
+    </form>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const form = document.getElementById("filter-form");
+        if (!form) return;
+        let debounceTimer;
+        form.querySelector("[name=q]")?.addEventListener("input", () => {
+          clearTimeout(debounceTimer);
+          debounceTimer = setTimeout(() => form.requestSubmit(), 300);
+        });
+      });
+    </script>
+
+    {rows.length > 0 ? (
+      <Card>
+        <CardContent class="p-0">
+          <div class="grid gap-3 p-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+            {rows.map((t) => (
+              <div key={t.id} class="flex items-center gap-3 rounded-lg border p-3 transition-colors hover:bg-muted/50">
+                <div class="h-4 w-4 shrink-0 rounded-full" style={t.color ? `background-color: ${t.color}` : "background-color: #e2e8f0"} />
+                <span class="text-sm font-medium">{t.name}</span>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+    ) : (
+      <EmptyState
+        title="Aucun tag"
+        description={search ? `Aucun résultat pour "${search}"` : "Créez des tags pour organiser vos candidatures."}
+        createHref="/tags/new"
+        createLabel="Nouveau tag"
+        hasFilters={hasFilters}
+      >
+        <Fragment slot="icon">
+          <Tags class="h-6 w-6 text-muted-foreground" />
+        </Fragment>
+      </EmptyState>
+    )}
+  </div>
+</AppLayout>
+
+<style is:global>
+  .btn-primary { display: inline-flex; height: 2rem; align-items: center; justify-content: center; gap: 0.375rem; border-radius: 0.5rem; background: hsl(var(--primary)); padding: 0 0.75rem; font-size: 0.875rem; font-weight: 500; color: hsl(var(--primary-foreground)); transition: background 0.15s; border: none; cursor: pointer; }
+  .btn-primary:hover { background: hsl(var(--primary) / 0.8); }
+</style>
