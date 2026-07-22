@@ -1,4 +1,10 @@
-import { pgTable, timestamp, uuid, varchar } from "drizzle-orm/pg-core";
+import {
+	boolean,
+	pgTable,
+	timestamp,
+	uuid,
+	varchar,
+} from "drizzle-orm/pg-core";
 
 export const users = pgTable("users", {
 	id: uuid().defaultRandom().primaryKey(),
@@ -14,6 +20,10 @@ export const users = pgTable("users", {
 	sessionToken: varchar("session_token", {
 		length: 255,
 	}),
+
+	notifyFollowUp: boolean("notify_follow_up").default(false).notNull(),
+
+	notifyInterview: boolean("notify_interview").default(false).notNull(),
 
 	createdAt: timestamp("created_at").defaultNow().notNull(),
 });
