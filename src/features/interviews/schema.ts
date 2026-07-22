@@ -7,7 +7,13 @@ export const createInterviewSchema = z.object({
   duration: z.coerce.number().int().positive().optional(),
   interviewer: z.string().optional(),
   notes: z.string().optional(),
-});
+}).refine(
+  (data) => {
+    if (data.scheduledAt === undefined) return true;
+    return !isNaN(new Date(data.scheduledAt).getTime());
+  },
+  { message: "Date invalide", path: ["scheduledAt"] },
+);
 
 export const updateInterviewSchema = z.object({
   type: z.enum(["phone_screen", "hr", "technical", "manager", "final", "other"]).optional(),

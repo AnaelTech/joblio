@@ -3,7 +3,7 @@ export const prerender = false;
 
 import AppLayout from "@/layouts/AppLayout.astro";
 import { Card, CardContent } from "@/components/ui/card";
-import { ArrowLeft, Plus } from "lucide-react";
+import { ArrowLeft, Plus, Upload } from "lucide-react";
 import { createApplication } from "@/features/applications/actions";
 import { createApplicationSchema } from "@/features/applications/schema";
 import {
@@ -13,6 +13,7 @@ import {
   REMOTE_LABELS,
 } from "@/features/applications/schema";
 import { getTags } from "@/features/tags/queries";
+import { uploadDocument } from "@/features/documents/actions";
 import FormError from "@/components/FormError.astro";
 
 const allTags = await getTags();
@@ -32,12 +33,12 @@ const values: Record<string, string> = {
 let tagIds: string[] = [];
 
 if (Astro.request.method === "POST") {
-  const text = await Astro.request.text();
-  const params = new URLSearchParams(text);
+  const formData = await Astro.request.formData();
 
-  const raw: Record<string, string | undefined> = {};
-  for (const key of params.keys()) {
-    raw[key] = params.get(key) ?? undefined;
+  const raw: Record<string, string> = {};
+  for (const key of formData.keys()) {
+    const val = formData.get(key);
+    if (typeof val === "string") raw[key] = val;
   }
   Object.assign(values, raw);
 
@@ -48,6 +49,16 @@ if (Astro.request.method === "POST") {
     const result = await createApplication(parsed.data);
 
     if (result.success) {
+      const resume = formData.get("resume") as File | null;
+      const coverLetter = formData.get("cover_letter") as File | null;
+
+      if (resume && resume.size > 0) {
+        await uploadDocument(result.id, "resume", resume);
+      }
+      if (coverLetter && coverLetter.size > 0) {
+        await uploadDocument(result.id, "cover_letter", coverLetter);
+      }
+
       return Astro.redirect("/applications");
     }
 
@@ -82,7 +93,7 @@ if (Astro.request.method === "POST") {
 
     <Card className="mt-6">
       <CardContent className="pt-6">
-        <form method="POST" class="space-y-10">
+        <form method="POST" enctype="multipart/form-data" class="space-y-10">
           <input type="hidden" name="tagIds" id="tagIds" value={JSON.stringify(tagIds)} />
 
           <div class="grid gap-6 sm:grid-cols-2">
@@ -174,6 +185,25 @@ if (Astro.request.method === "POST") {
           <div class="pt-4">
             <label for="notes" class="mb-2 block text-sm font-medium">Notes</label>
             <textarea id="notes" name="notes" class="textarea" placeholder="Informations complémentaires...">{values.notes}</textarea>
+          </div>
+
+          <div class="grid gap-6 sm:grid-cols-2">
+            <div>
+              <label for="resume" class="mb-2 flex items-center gap-1.5 text-sm font-medium">
+                <Upload className="h-4 w-4" />
+                CV
+              </label>
+              <input id="resume" name="resume" type="file" accept=".pdf,.png,.jpg,.jpeg,.webp" class="block w-full text-sm text-muted-foreground file:mr-3 file:h-8 file:rounded-lg file:border-0 file:bg-muted file:px-3 file:text-sm file:font-medium file:text-foreground hover:file:bg-muted/80" />
+              <p class="mt-1 text-[10px] text-muted-foreground">Max. 10 Mo — PDF, PNG, JPG, WebP</p>
+            </div>
+            <div>
+              <label for="cover_letter" class="mb-2 flex items-center gap-1.5 text-sm font-medium">
+                <Upload className="h-4 w-4" />
+                Lettre de motivation
+              </label>
+              <input id="cover_letter" name="cover_letter" type="file" accept=".pdf,.png,.jpg,.jpeg,.webp" class="block w-full text-sm text-muted-foreground file:mr-3 file:h-8 file:rounded-lg file:border-0 file:bg-muted file:px-3 file:text-sm file:font-medium file:text-foreground hover:file:bg-muted/80" />
+              <p class="mt-1 text-[10px] text-muted-foreground">Max. 10 Mo — PDF, PNG, JPG, WebP</p>
+            </div>
           </div>
 
           <div class="flex items-center gap-3">

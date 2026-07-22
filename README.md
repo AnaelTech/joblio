@@ -32,8 +32,7 @@ Instead of relying on spreadsheets, Joblio provides a clean dashboard to manage:
 - 🏢 Companies
 - 👤 Recruiter contacts
 - 📅 Interviews
-- 🔔 Follow-ups
-- 📎 Documents
+- 🏷️ Tags
 - 📊 Statistics
 - 📝 Activity timeline
 
@@ -47,7 +46,7 @@ Everything stays under your control.
 
 - Statistics
 - Follow-up reminders
-- Recent activity
+- Recent activity timeline
 - Application overview
 
 ### Applications
@@ -57,14 +56,15 @@ Everything stays under your control.
 - Salary expectations
 - Priority management
 - Favorite applications
-- Notes
+- Notes & tags
+- Activity history
 
 ### Companies
 
 - Company directory
-- Career pages
-- Company notes
+- Sector, size, location tracking
 - Website & LinkedIn
+- Company notes
 
 ### Contacts
 
@@ -77,18 +77,12 @@ Everything stays under your control.
 
 - Schedule interviews
 - Multiple interview rounds
-- Notes
-- Results
-
-### Documents
-
-- Resume
-- Cover letter
-- Portfolio
-- Other attachments
+- Notes & results
+- Status tracking
 
 ### Search & Filters
 
+- Full-text search across all entities
 - Status
 - Company
 - Source
@@ -121,6 +115,7 @@ Everything stays under your control.
 ```text
 src
 ├── components
+│   └── ui
 ├── db
 │   ├── client.ts
 │   ├── relations.ts
@@ -131,7 +126,9 @@ src
 │   ├── companies
 │   ├── contacts
 │   ├── interviews
-│   └── dashboard
+│   ├── dashboard
+│   └── settings
+├── hooks
 ├── layouts
 ├── lib
 ├── pages
@@ -149,9 +146,8 @@ Main entities:
 - Companies
 - Contacts
 - Interviews
-- Documents
-- Activities
 - Tags
+- Activities
 
 ---
 
@@ -195,14 +191,14 @@ npm run dev
 
 ### MVP
 
-- [ ] Dashboard
-- [ ] Applications CRUD
-- [ ] Companies
-- [ ] Contacts
-- [ ] Interviews
-- [ ] Documents
-- [ ] Search
-- [ ] Filters
+- [x] Dashboard
+- [x] Applications CRUD
+- [x] Companies
+- [x] Contacts
+- [x] Interviews
+- [x] Search
+- [x] Filters
+- [x] Documents
 
 ### Next
 

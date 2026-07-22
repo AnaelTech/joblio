@@ -46,7 +46,7 @@ if (Astro.request.method === "POST") {
 
     <Card class="mt-6">
       <CardContent class="pt-6">
-        <form method="POST" class="space-y-10">
+        <form method="POST" enctype="application/x-www-form-urlencoded" class="space-y-10">
           <div class="grid gap-6 sm:grid-cols-2">
             <div class="sm:col-span-2">
               <label for="applicationId" class="mb-2 block text-sm font-medium">Candidature <span class="text-red-500">*</span></label>
@@ -69,26 +69,31 @@ if (Astro.request.method === "POST") {
                   <option value={v} selected={values.type === v}>{l}</option>
                 ))}
               </select>
+              {errors.type && <p class="mt-1 text-xs text-red-500">{errors.type}</p>}
             </div>
 
             <div>
               <label for="scheduledAt" class="mb-2 block text-sm font-medium">Date</label>
               <input id="scheduledAt" name="scheduledAt" type="datetime-local" value={values.scheduledAt} class="input" />
+              {errors.scheduledAt && <p class="mt-1 text-xs text-red-500">{errors.scheduledAt}</p>}
             </div>
 
             <div>
               <label for="duration" class="mb-2 block text-sm font-medium">Durée (minutes)</label>
               <input id="duration" name="duration" type="number" min="1" value={values.duration} class="input" placeholder="60" />
+              {errors.duration && <p class="mt-1 text-xs text-red-500">{errors.duration}</p>}
             </div>
 
             <div>
               <label for="interviewer" class="mb-2 block text-sm font-medium">Recruteur / Interlocuteur</label>
               <input id="interviewer" name="interviewer" type="text" value={values.interviewer} class="input" placeholder="Nom du recruteur" />
+              {errors.interviewer && <p class="mt-1 text-xs text-red-500">{errors.interviewer}</p>}
             </div>
 
             <div class="sm:col-span-2">
               <label for="notes" class="mb-2 block text-sm font-medium">Notes</label>
               <textarea id="notes" name="notes" class="textarea" placeholder="Préparations, questions à poser...">{values.notes}</textarea>
+              {errors.notes && <p class="mt-1 text-xs text-red-500">{errors.notes}</p>}
             </div>
           </div>
 

@@ -28,12 +28,20 @@ export async function handleForm<T>(
   const errors: FormErrors = {};
   let globalError = "";
   const values: Record<string, string> = { ...defaults };
-
-  const text = await request.text();
-  const params = new URLSearchParams(text);
   const raw: Record<string, string | undefined> = {};
-  for (const [key] of params) {
-    raw[key] = params.get(key) ?? undefined;
+
+  const contentType = request.headers.get("content-type") ?? "";
+  if (contentType.includes("multipart/form-data")) {
+    const formData = await request.formData();
+    for (const [key, value] of formData.entries()) {
+      if (typeof value === "string" && value !== "") raw[key] = value;
+    }
+  } else {
+    const text = await request.text();
+    const params = new URLSearchParams(text);
+    for (const [key, value] of params.entries()) {
+      if (value !== "") raw[key] = value;
+    }
   }
 
   Object.assign(values, raw);

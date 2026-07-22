@@ -37,6 +37,7 @@ import {
   useAddApplicationTag,
   useRemoveApplicationTag,
 } from "@/features/applications/hooks";
+import DocumentSection from "@/features/documents/components/DocumentSection";
 
 export interface ApplicationTag {
   id: string;
@@ -581,6 +582,8 @@ export default function ApplicationModal({
             </div>
           )}
         </div>
+
+        {!isArchived && <DocumentSection applicationId={selected.id} />}
 
         <div className="flex items-center justify-between border-t pt-4">
           {confirmDelete ? (
