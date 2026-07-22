@@ -101,7 +101,7 @@ function NavItem({
 }
 
 function SidebarInner() {
-  const { state, open, setOpen, isMobile } = useSidebar();
+  const { state, open, setOpen, setOpenMobile, isMobile } = useSidebar();
   const activePath = useActivePath();
   const collapsed = !isMobile && state === "collapsed";
 
@@ -149,7 +149,7 @@ function SidebarInner() {
               )}
               {isMobile && (
                 <button
-                  onClick={() => setOpen(false)}
+                  onClick={() => setOpenMobile(false)}
                   className="flex size-8 shrink-0 items-center justify-center rounded-lg text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600"
                 >
                   <X className="size-4" />
