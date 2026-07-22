@@ -16,17 +16,10 @@ export default function AppSidebarLayout({
 			<AppSidebar />
 
 			<SidebarInset>
-				<header
-					className="
-					flex
-					h-14
-					items-center
-					gap-2
-					border-b
-					px-6
-				"
-				>
-					<SidebarTrigger />
+				<header className="flex h-14 items-center gap-2 border-b px-4">
+					<div className="md:hidden">
+						<SidebarTrigger />
+					</div>
 
 					<span className="font-semibold">Joblio</span>
 				</header>

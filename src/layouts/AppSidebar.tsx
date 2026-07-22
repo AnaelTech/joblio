@@ -1,3 +1,4 @@
+import { useState, useEffect, useCallback } from "react";
 import {
   BriefcaseBusiness,
   Building2,
@@ -6,97 +7,224 @@ import {
   LayoutDashboard,
   Settings,
   Tags,
+  ChevronLeft,
+  ChevronRight,
+  X,
 } from "lucide-react";
-
+import { Sidebar, useSidebar } from "@/components/ui/sidebar";
 import {
-  Sidebar,
-  SidebarContent,
-  SidebarFooter,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-} from "@/components/ui/sidebar";
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+} from "@/components/ui/tooltip";
+import { cn } from "@/lib/utils";
 
-const items = [
+const sections = [
   {
-    title: "Dashboard",
-    url: "/dashboard",
-    icon: LayoutDashboard,
+    label: "Général",
+    items: [{ title: "Dashboard", url: "/dashboard", icon: LayoutDashboard }],
   },
   {
-    title: "Candidatures",
-    url: "/applications",
-    icon: BriefcaseBusiness,
+    label: "Suivi",
+    items: [
+      { title: "Candidatures", url: "/applications", icon: BriefcaseBusiness },
+      { title: "Entreprises", url: "/companies", icon: Building2 },
+      { title: "Contacts", url: "/contacts", icon: ContactRound },
+      { title: "Entretiens", url: "/interviews", icon: CalendarDays },
+    ],
   },
   {
-    title: "Companies",
-    url: "/companies",
-    icon: Building2,
-  },
-  {
-    title: "Contacts",
-    url: "/contacts",
-    icon: ContactRound,
-  },
-  {
-    title: "Interviews",
-    url: "/interviews",
-    icon: CalendarDays,
-  },
-  {
-    title: "Tags",
-    url: "/tags",
-    icon: Tags,
+    label: "Configuration",
+    items: [{ title: "Tags", url: "/tags", icon: Tags }],
   },
 ];
 
-export default function AppSidebar() {
+const allItems = sections.flatMap((s) => s.items);
+
+function useActivePath() {
+  const [path, setPath] = useState("");
+  useEffect(() => {
+    setPath(window.location.pathname);
+  }, []);
+  return path;
+}
+
+function NavItem({
+  icon: Icon,
+  title,
+  url,
+  collapsed,
+  isActive,
+}: {
+  icon: React.ComponentType<{ className?: string }>;
+  title: string;
+  url: string;
+  collapsed: boolean;
+  isActive: boolean;
+}) {
+  const inner = (
+    <a
+      href={url}
+      className={cn(
+        "flex items-center rounded-xl transition-all duration-150",
+        collapsed ? "mx-auto size-10 justify-center" : "h-11 w-full gap-3 px-3",
+        isActive
+          ? "bg-gray-100 text-emerald-600 font-medium"
+          : "text-gray-600 hover:bg-gray-100 hover:text-gray-900",
+      )}
+    >
+      <Icon className="size-5 shrink-0" />
+      {!collapsed && (
+        <>
+          <span className="truncate text-sm">{title}</span>
+        </>
+      )}
+    </a>
+  );
+
+  if (collapsed) {
+    return (
+      <Tooltip closeDelay={0}>
+        <TooltipTrigger render={<span />}>{inner}</TooltipTrigger>
+        <TooltipContent
+          side="right"
+          sideOffset={8}
+          className="rounded-lg bg-gray-900 px-2.5 py-1.5 text-xs text-white"
+        >
+          {title}
+        </TooltipContent>
+      </Tooltip>
+    );
+  }
+
+  return inner;
+}
+
+function SidebarInner() {
+  const { state, open, setOpen, isMobile } = useSidebar();
+  const activePath = useActivePath();
+  const collapsed = !isMobile && state === "collapsed";
+
+  const handleToggle = useCallback(() => {
+    setOpen(!open);
+  }, [open, setOpen]);
+
   return (
-    <Sidebar>
-      <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupLabel>Joblio</SidebarGroupLabel>
-
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {items.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton
-                    tooltip={item.title}
-                    onClick={() => {
-                      window.location.href = item.url;
-                    }}
-                  >
-                    <item.icon />
-
-                    <span>{item.title}</span>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-      </SidebarContent>
-
-      <SidebarFooter>
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton
-              tooltip="Settings"
-              onClick={() => {
-                window.location.href = "/settings";
-              }}
+    <Sidebar collapsible="icon" variant="floating" className="bg-white">
+      <div
+        className={cn(
+          "flex h-full w-full flex-col",
+          collapsed ? "items-center" : "",
+        )}
+      >
+        {/* Header */}
+        <div
+          className={cn(
+            "flex shrink-0 items-center border-b border-gray-200 transition-all",
+            collapsed
+              ? "h-[120px] w-full flex-col justify-start gap-3 pt-5 px-0"
+              : "h-[72px] gap-3 px-4",
+          )}
+        >
+          <div className="flex size-10 items-center justify-center rounded-xl bg-emerald-600 text-sm font-bold text-white">
+            J
+          </div>
+          {!collapsed && (
+            <>
+              <div className="flex min-w-0 flex-1 flex-col">
+                <span className="truncate text-sm font-semibold text-gray-900">
+                  Joblio
+                </span>
+                <span className="truncate text-xs text-gray-500">
+                  Recruteur
+                </span>
+              </div>
+              {!isMobile && (
+                <button
+                  onClick={handleToggle}
+                  className="flex size-8 shrink-0 items-center justify-center rounded-lg text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600"
+                >
+                  <ChevronLeft className="size-4" />
+                </button>
+              )}
+              {isMobile && (
+                <button
+                  onClick={() => setOpen(false)}
+                  className="flex size-8 shrink-0 items-center justify-center rounded-lg text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600"
+                >
+                  <X className="size-4" />
+                </button>
+              )}
+            </>
+          )}
+          {collapsed && !isMobile && (
+            <button
+              onClick={handleToggle}
+              className="flex size-8 items-center justify-center rounded-lg text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600"
             >
-              <Settings />
+              <ChevronRight className="size-4" />
+            </button>
+          )}
+        </div>
 
-              <span>Settings</span>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
-      </SidebarFooter>
+        {/* Content */}
+        <div
+          className={cn(
+            "flex-1 overflow-y-auto",
+            collapsed ? "px-2 py-4" : "px-3 py-4",
+          )}
+        >
+          {collapsed ? (
+            <nav className="flex flex-col items-center gap-2">
+              {allItems.map((item) => (
+                <NavItem
+                  key={item.title}
+                  {...item}
+                  collapsed
+                  isActive={activePath === item.url}
+                />
+              ))}
+            </nav>
+          ) : (
+            <nav className="flex flex-col gap-1">
+              {sections.map((section) => (
+                <div key={section.label} className="flex flex-col">
+                  <span className="px-3 py-2 text-[11px] font-semibold uppercase tracking-wider text-gray-400">
+                    {section.label}
+                  </span>
+                  <div className="flex flex-col gap-1">
+                    {section.items.map((item) => (
+                      <NavItem
+                        key={item.title}
+                        {...item}
+                        collapsed={false}
+                        isActive={activePath === item.url}
+                      />
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </nav>
+          )}
+        </div>
+
+        {/* Footer */}
+        {!collapsed && (
+          <div className="shrink-0 border-t border-gray-200 px-3 py-3">
+            <NavItem
+              icon={Settings}
+              title="Paramètres"
+              url="/settings"
+              collapsed={false}
+              isActive={activePath === "/settings"}
+            />
+          </div>
+        )}
+      </div>
     </Sidebar>
   );
+}
+
+export default function AppSidebar() {
+  return <SidebarInner />;
 }
