@@ -1,14 +1,14 @@
 import { relations } from "drizzle-orm";
-
-import { users } from "./schema/users";
+import { activities } from "./schema/activities";
+import { applicationTags } from "./schema/application-tags";
+import { applications } from "./schema/applications";
 import { companies } from "./schema/companies";
 import { contacts } from "./schema/contacts";
-import { applications } from "./schema/applications";
-import { interviews } from "./schema/interviews";
 import { documents } from "./schema/documents";
-import { activities } from "./schema/activities";
+import { interviews } from "./schema/interviews";
+import { notifications } from "./schema/notifications";
 import { tags } from "./schema/tags";
-import { applicationTags } from "./schema/application-tags";
+import { users } from "./schema/users";
 
 // ======================
 // Users
@@ -17,6 +17,7 @@ import { applicationTags } from "./schema/application-tags";
 export const usersRelations = relations(users, ({ many }) => ({
 	companies: many(companies),
 	applications: many(applications),
+	notifications: many(notifications),
 }));
 
 // ======================
@@ -76,6 +77,8 @@ export const applicationsRelations = relations(
 		activities: many(activities),
 
 		applicationTags: many(applicationTags),
+
+		notifications: many(notifications),
 	}),
 );
 
@@ -83,11 +86,13 @@ export const applicationsRelations = relations(
 // Interviews
 // ======================
 
-export const interviewsRelations = relations(interviews, ({ one }) => ({
+export const interviewsRelations = relations(interviews, ({ one, many }) => ({
 	application: one(applications, {
 		fields: [interviews.applicationId],
 		references: [applications.id],
 	}),
+
+	notifications: many(notifications),
 }));
 
 // ======================
@@ -138,3 +143,24 @@ export const applicationTagsRelations = relations(
 		}),
 	}),
 );
+
+// ======================
+// Notifications
+// ======================
+
+export const notificationsRelations = relations(notifications, ({ one }) => ({
+	user: one(users, {
+		fields: [notifications.userId],
+		references: [users.id],
+	}),
+
+	application: one(applications, {
+		fields: [notifications.applicationId],
+		references: [applications.id],
+	}),
+
+	interview: one(interviews, {
+		fields: [notifications.interviewId],
+		references: [interviews.id],
+	}),
+}));

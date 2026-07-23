@@ -26,3 +26,6 @@ pnpm-debug.log*
 API.md
 ARCHITECTURE.md
 DATABASE.md
+
+# uploaded files
+public/uploads/
