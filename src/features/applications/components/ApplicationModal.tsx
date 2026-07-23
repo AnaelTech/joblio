@@ -113,7 +113,7 @@ export default function ApplicationModal({
   const { data: allTags } = useAllTags();
   const addTagMutation = useAddApplicationTag();
   const removeTagMutation = useRemoveApplicationTag();
-	const [tagSaving, setTagSaving] = useState<string | null>(null);
+  const [tagSaving, setTagSaving] = useState<string | null>(null);
   const [showArchiveSuggestion, setShowArchiveSuggestion] = useState(false);
   const isArchived = selected?.status === "archived";
 
@@ -346,7 +346,7 @@ export default function ApplicationModal({
                   </option>
                 ))}
               </select>
-              {(saving === "status") && (
+              {saving === "status" && (
                 <Loader2 className="h-3.5 w-3.5 animate-spin text-muted-foreground" />
               )}
               {isArchived && (
@@ -549,14 +549,14 @@ export default function ApplicationModal({
             Notes
           </label>
           <div className="flex gap-2">
-              <textarea
-                value={notesDraft}
-                onChange={(e) => setNotesDraft(e.target.value)}
-                rows={3}
-                disabled={isArchived}
-                placeholder="Ajouter des notes..."
-                className="flex-1 min-h-16 rounded-lg border bg-transparent px-2.5 py-1.5 text-sm transition-colors outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 resize-none disabled:opacity-50"
-              />
+            <textarea
+              value={notesDraft}
+              onChange={(e) => setNotesDraft(e.target.value)}
+              rows={3}
+              disabled={isArchived}
+              placeholder="Ajouter des notes..."
+              className="flex-1 min-h-16 rounded-lg border bg-transparent px-2.5 py-1.5 text-sm transition-colors outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 resize-none disabled:opacity-50"
+            />
           </div>
           {notesDraft !== (selected.notes ?? "") && !isArchived && (
             <div className="mt-1.5 flex justify-end">
