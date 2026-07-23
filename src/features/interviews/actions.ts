@@ -1,21 +1,24 @@
-import { db } from "@/db/client";
-import { interviews } from "@/db/schema/interviews";
-import { activities } from "@/db/schema/activities";
-import { type CreateInterviewInput, updateInterviewSchema } from "./schema";
-import { z } from "zod";
+import { format } from "date-fns";
+import { fr } from "date-fns/locale";
 import { eq } from "drizzle-orm";
+import { z } from "zod";
+import { db } from "@/db/client";
+import { activities } from "@/db/schema/activities";
+import { interviews } from "@/db/schema/interviews";
+import { users } from "@/db/schema/users";
+import { createNotification } from "@/features/notifications/service";
+import { type CreateInterviewInput, updateInterviewSchema } from "./schema";
 
 function getErrorMessage(e: unknown, fallback: string): string {
 	return e instanceof Error ? e.message : fallback;
 }
 
 export async function createInterview(
+	userId: string,
 	input: CreateInterviewInput,
 ): Promise<{ success: true; id: string } | { success: false; error: string }> {
 	try {
-		const scheduledAt = input.scheduledAt
-			? new Date(input.scheduledAt)
-			: null;
+		const scheduledAt = input.scheduledAt ? new Date(input.scheduledAt) : null;
 
 		const [interview] = await db
 			.insert(interviews)
@@ -37,9 +40,31 @@ export async function createInterview(
 				: `Entretien ${input.type} ajouté`,
 		});
 
+		if (scheduledAt) {
+			const [user] = await db
+				.select({ notifyInterview: users.notifyInterview })
+				.from(users)
+				.where(eq(users.id, userId))
+				.limit(1);
+			if (user?.notifyInterview) {
+				await createNotification({
+					userId,
+					type: "interview",
+					title: "Entretien planifié",
+					message: `Entretien ${input.type} prévu le ${format(scheduledAt, "dd MMM yyyy 'à' HH:mm", { locale: fr })}`,
+					link: `/applications/${input.applicationId}`,
+					applicationId: input.applicationId,
+					interviewId: interview.id,
+				});
+			}
+		}
+
 		return { success: true, id: interview.id };
 	} catch (e) {
-		return { success: false, error: getErrorMessage(e, "Erreur lors de la création") };
+		return {
+			success: false,
+			error: getErrorMessage(e, "Erreur lors de la création"),
+		};
 	}
 }
 
@@ -72,9 +97,15 @@ export async function updateInterview(
 		return { success: true };
 	} catch (e) {
 		if (e instanceof z.ZodError) {
-			return { success: false, error: e.errors.map((err) => err.message).join(", ") };
+			return {
+				success: false,
+				error: e.errors.map((err) => err.message).join(", "),
+			};
 		}
-		return { success: false, error: getErrorMessage(e, "Erreur lors de la modification") };
+		return {
+			success: false,
+			error: getErrorMessage(e, "Erreur lors de la modification"),
+		};
 	}
 }
 
@@ -85,6 +116,9 @@ export async function deleteInterview(
 		await db.delete(interviews).where(eq(interviews.id, id));
 		return { success: true };
 	} catch (e) {
-		return { success: false, error: getErrorMessage(e, "Erreur lors de la suppression") };
+		return {
+			success: false,
+			error: getErrorMessage(e, "Erreur lors de la suppression"),
+		};
 	}
 }

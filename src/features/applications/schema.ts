@@ -33,17 +33,16 @@ export const createApplicationSchema = z.object({
 	location: z.string().optional(),
 	remoteType: z.enum(["onsite", "hybrid", "remote"]).optional(),
 	notes: z.string().optional(),
-	tagIds: z
-		.preprocess((v) => {
-			if (typeof v === "string") {
-				try {
-					return JSON.parse(v);
-				} catch {
-					return [];
-				}
+	tagIds: z.preprocess((v) => {
+		if (typeof v === "string") {
+			try {
+				return JSON.parse(v);
+			} catch {
+				return [];
 			}
-			return v;
-		}, z.array(z.string().uuid()).optional()),
+		}
+		return v;
+	}, z.array(z.string().uuid()).optional()),
 });
 
 export type CreateApplicationInput = z.infer<typeof createApplicationSchema>;
@@ -67,6 +66,7 @@ export const updateApplicationSchema = z.object({
 	notes: z.string().nullable().optional(),
 	location: z.string().nullable().optional(),
 	remoteType: z.enum(["onsite", "hybrid", "remote"]).nullable().optional(),
+	followUpDate: z.string().nullable().optional(),
 });
 
 export type UpdateApplicationInput = z.infer<typeof updateApplicationSchema>;

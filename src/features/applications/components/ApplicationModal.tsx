@@ -107,6 +107,8 @@ export default function ApplicationModal({
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [notesDraft, setNotesDraft] = useState("");
   const [locationDraft, setLocationDraft] = useState("");
+  const [followUpDateDraft, setFollowUpDateDraft] = useState("");
+  const [isFollowUpSuggested, setIsFollowUpSuggested] = useState(false);
 
   const updateMutation = useUpdateApplication();
   const deleteMutation = useDeleteApplication();
@@ -130,6 +132,16 @@ export default function ApplicationModal({
     setSelected(app);
     setNotesDraft(app.notes ?? "");
     setLocationDraft(app.location ?? "");
+    const suggestedDate =
+      app.status === "applied" && !app.followUpDate
+        ? (() => {
+            const d = new Date(app.applicationDate || app.createdAt);
+            d.setDate(d.getDate() + 8);
+            return d.toISOString().split("T")[0];
+          })()
+        : null;
+    setFollowUpDateDraft(app.followUpDate ?? suggestedDate ?? "");
+    setIsFollowUpSuggested(!app.followUpDate && suggestedDate !== null);
     setOpen(true);
     setFeedback(null);
     setConfirmDelete(false);
@@ -522,12 +534,67 @@ export default function ApplicationModal({
               <span>{salaryText}</span>
             </div>
           )}
-          {selected.followUpDate && (
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <Calendar className="h-4 w-4 shrink-0" />
-              <span>Relance le {formatDate(selected.followUpDate)}</span>
+          <div className="flex flex-col gap-1">
+						{isFollowUpSuggested && (
+							<span className="ml-6 text-[11px] text-amber-600">
+								Date relance conseillée
+							</span>
+						)}
+						<div className="flex items-center gap-2">
+							<Calendar className="h-4 w-4 shrink-0 text-muted-foreground" />
+              <input
+                type="date"
+                value={followUpDateDraft}
+                onChange={(e) => {
+                  setFollowUpDateDraft(e.target.value);
+                  setIsFollowUpSuggested(false);
+                }}
+                disabled={isArchived}
+                className="h-7 flex-1 rounded-lg border bg-transparent px-2.5 text-sm outline-none transition-colors text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:opacity-50"
+              />
+              {followUpDateDraft !== (selected.followUpDate ?? "") &&
+                !isArchived && (
+                  <Button
+                    size="sm"
+                    variant="default"
+                    disabled={saving === "followUpDate"}
+                    onClick={() => {
+                      setSaving("followUpDate");
+                      setFeedback(null);
+                      updateMutation.mutate(
+                        {
+                          id: selected.id,
+                          data: { followUpDate: followUpDateDraft || null },
+                        },
+                        {
+                          onSettled: () => setSaving(null),
+                          onSuccess: () => {
+                            setFeedback({
+                              type: "success",
+                              message: "Date de relance mise à jour",
+                            });
+                          },
+                          onError: (e) =>
+                            setFeedback({
+                              type: "error",
+                              message:
+                                e instanceof Error
+                                  ? e.message
+                                  : "Erreur réseau",
+                            }),
+                        },
+                      );
+                    }}
+                  >
+                    {saving === "followUpDate" ? (
+                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    ) : (
+                      <Check className="h-3.5 w-3.5" />
+                    )}
+                  </Button>
+                )}
             </div>
-          )}
+          </div>
         </div>
 
         {selected.sourceUrl && (

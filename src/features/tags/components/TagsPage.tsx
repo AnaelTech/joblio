@@ -131,7 +131,9 @@ function TagsPageInner({ initialData, search }: Props) {
 				class="flex flex-wrap items-end gap-3"
 			>
 				<div class="relative min-w-0 flex-1 basis-[200px]">
-					<Search class="absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+					<div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-2.5">
+						<Search class="h-4 w-4 text-muted-foreground" />
+					</div>
 					<input
 						name="q"
 						type="text"
@@ -351,26 +353,6 @@ function TagsPageInner({ initialData, search }: Props) {
 					</div>
 				</DialogContent>
 			</Dialog>
-
-			<style>{`
-        .btn-primary {
-          display: inline-flex;
-          height: 2rem;
-          align-items: center;
-          gap: 0.375rem;
-          border-radius: 0.5rem;
-          background: #059669;
-          padding: 0 0.75rem;
-          font-size: 0.875rem;
-          font-weight: 500;
-          color: #fff;
-          transition: all 0.15s;
-          text-decoration: none;
-        }
-        .btn-primary:hover {
-          background: #047857;
-        }
-      `}</style>
 		</div>
 	);
 }

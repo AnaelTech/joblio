@@ -1,9 +1,9 @@
+import { and, desc, eq, ilike, inArray, ne, or, sql } from "drizzle-orm";
 import { db } from "@/db/client";
+import { applicationTags } from "@/db/schema/application-tags";
 import { applications } from "@/db/schema/applications";
 import { companies } from "@/db/schema/companies";
-import { applicationTags } from "@/db/schema/application-tags";
 import { tags } from "@/db/schema/tags";
-import { and, desc, eq, ilike, ne, or, inArray, sql } from "drizzle-orm";
 
 export interface ApplicationTag {
 	id: string;
@@ -71,7 +71,7 @@ export async function getApplications(params?: {
 			conditions.push(eq(applications.userId, params.userId));
 		}
 
-		if (params?.archived === "true") {
+		if (params?.archived === "true" || params?.status === "archived") {
 			conditions.push(eq(applications.status, "archived"));
 		} else {
 			conditions.push(ne(applications.status, "archived"));
@@ -86,7 +86,11 @@ export async function getApplications(params?: {
 			);
 		}
 
-		if (params?.status && params?.archived !== "true") {
+		if (
+			params?.status &&
+			params?.archived !== "true" &&
+			params?.status !== "archived"
+		) {
 			conditions.push(eq(applications.status, params.status));
 		}
 

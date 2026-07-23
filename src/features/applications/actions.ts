@@ -1,17 +1,24 @@
+import { format } from "date-fns";
+import { fr } from "date-fns/locale";
+import { and, eq, ilike } from "drizzle-orm";
 import { db } from "@/db/client";
+import { activities } from "@/db/schema/activities";
+import { applicationTags } from "@/db/schema/application-tags";
 import { applications } from "@/db/schema/applications";
 import { companies } from "@/db/schema/companies";
-import { applicationTags } from "@/db/schema/application-tags";
-import { activities } from "@/db/schema/activities";
+import { users } from "@/db/schema/users";
+import { createNotification } from "@/features/notifications/service";
 import {
-	createApplicationSchema,
-	updateApplicationSchema,
 	type CreateApplicationInput,
+	createApplicationSchema,
 	type UpdateApplicationInput,
+	updateApplicationSchema,
 } from "./schema";
-import { eq, ilike, and } from "drizzle-orm";
 
-async function findOrCreateCompany(name: string, userId: string): Promise<string> {
+async function findOrCreateCompany(
+	name: string,
+	userId: string,
+): Promise<string> {
 	const existing = await db
 		.select({ id: companies.id })
 		.from(companies)
@@ -84,7 +91,10 @@ export async function createApplication(
 
 		return { success: true, id: application.id };
 	} catch (e) {
-		return { success: false, error: getErrorMessage(e, "Erreur lors de la création") };
+		return {
+			success: false,
+			error: getErrorMessage(e, "Erreur lors de la création"),
+		};
 	}
 }
 
@@ -110,6 +120,10 @@ export async function updateApplication(
 			return { success: false, error: "Candidature introuvable" };
 		}
 
+		const oldFollowUp = parsed.followUpDate
+			? new Date(parsed.followUpDate)
+			: null;
+
 		await db
 			.update(applications)
 			.set({ ...parsed, updatedAt: new Date() })
@@ -119,9 +133,30 @@ export async function updateApplication(
 			await recordActivity(id, "updated", changed.join(", "));
 		}
 
+		if (oldFollowUp) {
+			const [user] = await db
+				.select({ notifyFollowUp: users.notifyFollowUp })
+				.from(users)
+				.where(eq(users.id, userId))
+				.limit(1);
+			if (user?.notifyFollowUp) {
+				await createNotification({
+					userId,
+					type: "follow_up",
+					title: "Relance à prévoir",
+					message: `Relance programmée pour le ${format(oldFollowUp, "dd MMM yyyy", { locale: fr })}`,
+					link: `/applications/${id}`,
+					applicationId: id,
+				});
+			}
+		}
+
 		return { success: true };
 	} catch (e) {
-		return { success: false, error: getErrorMessage(e, "Erreur lors de la modification") };
+		return {
+			success: false,
+			error: getErrorMessage(e, "Erreur lors de la modification"),
+		};
 	}
 }
 
@@ -140,17 +175,16 @@ export async function deleteApplication(
 			return { success: false, error: "Candidature introuvable" };
 		}
 
-		await recordActivity(
-			id,
-			"deleted",
-			`Candidature supprimée : ${app.title}`,
-		);
+		await recordActivity(id, "deleted", `Candidature supprimée : ${app.title}`);
 
 		await db.delete(applications).where(eq(applications.id, id));
 
 		return { success: true };
 	} catch (e) {
-		return { success: false, error: getErrorMessage(e, "Erreur lors de la suppression") };
+		return {
+			success: false,
+			error: getErrorMessage(e, "Erreur lors de la suppression"),
+		};
 	}
 }
 
@@ -179,7 +213,10 @@ export async function addApplicationTag(
 
 		return { success: true };
 	} catch (e) {
-		return { success: false, error: getErrorMessage(e, "Erreur lors de l'ajout du tag") };
+		return {
+			success: false,
+			error: getErrorMessage(e, "Erreur lors de l'ajout du tag"),
+		};
 	}
 }
 
@@ -199,6 +236,9 @@ export async function removeApplicationTag(
 
 		return { success: true };
 	} catch (e) {
-		return { success: false, error: getErrorMessage(e, "Erreur lors du retrait du tag") };
+		return {
+			success: false,
+			error: getErrorMessage(e, "Erreur lors du retrait du tag"),
+		};
 	}
 }
