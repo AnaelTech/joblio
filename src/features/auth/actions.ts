@@ -1,7 +1,7 @@
 import { db } from "@/db/client";
 import { sessions } from "@/db/schema/sessions";
 import { users } from "@/db/schema/users";
-import { eq } from "drizzle-orm";
+import { eq, lt } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 import { randomUUID } from "node:crypto";
 
@@ -75,8 +75,16 @@ export async function login(
 			return { success: false, error: "Email ou mot de passe incorrect" };
 		}
 
+		await db.delete(sessions).where(
+			eq(sessions.userId, user.id),
+			lt(sessions.expiresAt, new Date()),
+		);
+
 		const token = randomUUID();
-		await db.insert(sessions).values({ userId: user.id, token });
+		const thirtyDays = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+		await db
+			.insert(sessions)
+			.values({ userId: user.id, token, expiresAt: thirtyDays });
 
 		return {
 			success: true,
@@ -101,13 +109,25 @@ export async function getSession(
 			id: users.id,
 			name: users.name,
 			email: users.email,
+			expiresAt: sessions.expiresAt,
 		})
 		.from(sessions)
 		.innerJoin(users, eq(sessions.userId, users.id))
 		.where(eq(sessions.token, token))
 		.limit(1);
 
-	return session ?? null;
+	if (!session) return null;
+
+	if (session.expiresAt && session.expiresAt < new Date()) {
+		await db.delete(sessions).where(eq(sessions.token, token));
+		return null;
+	}
+
+	return { id: session.id, name: session.name, email: session.email };
+}
+
+export async function cleanupExpiredSessions(): Promise<void> {
+	await db.delete(sessions).where(lt(sessions.expiresAt, new Date()));
 }
 
 export async function logout(token: string): Promise<void> {
