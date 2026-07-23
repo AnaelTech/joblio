@@ -1,4 +1,11 @@
-import { index, pgTable, text, timestamp, uuid, varchar } from "drizzle-orm/pg-core";
+import {
+	index,
+	pgTable,
+	text,
+	timestamp,
+	uuid,
+	varchar,
+} from "drizzle-orm/pg-core";
 
 import { users } from "./users";
 
@@ -31,7 +38,5 @@ export const companies = pgTable(
 
 		updatedAt: timestamp("updated_at").defaultNow().notNull(),
 	},
-	(table) => [
-		index("companies_user_idx").on(table.userId),
-	],
+	(table) => [index("companies_user_idx").on(table.userId)],
 );

@@ -7,10 +7,10 @@ import { ArrowLeft, Plus, Upload } from "lucide-react";
 import { createApplication } from "@/features/applications/actions";
 import { createApplicationSchema } from "@/features/applications/schema";
 import {
-  SOURCE_LABELS,
-  STATUS_LABELS,
-  PRIORITY_LABELS,
-  REMOTE_LABELS,
+	SOURCE_LABELS,
+	STATUS_LABELS,
+	PRIORITY_LABELS,
+	REMOTE_LABELS,
 } from "@/features/applications/schema";
 import { getTags } from "@/features/tags/queries";
 import { uploadDocument } from "@/features/documents/actions";
@@ -22,89 +22,96 @@ const allTags = await getTags();
 let errors: Record<string, string> = {};
 let globalError = "";
 const values: Record<string, string> = {
-  companyName: "",
-  title: "",
-  source: "linkedin",
-  status: "applied",
-  priority: "medium",
-  location: "",
-  remoteType: "",
-  notes: "",
+	companyName: "",
+	title: "",
+	source: "linkedin",
+	status: "applied",
+	priority: "medium",
+	location: "",
+	remoteType: "",
+	notes: "",
 };
 let tagIds: string[] = [];
 
 if (Astro.request.method === "POST") {
-  const formData = await Astro.request.formData();
+	const formData = await Astro.request.formData();
 
-  const raw: Record<string, string> = {};
-  for (const key of formData.keys()) {
-    const val = formData.get(key);
-    if (typeof val === "string") raw[key] = val;
-  }
-  Object.assign(values, raw);
+	const raw: Record<string, string> = {};
+	for (const key of formData.keys()) {
+		const val = formData.get(key);
+		if (typeof val === "string") raw[key] = val;
+	}
+	Object.assign(values, raw);
 
-  const parsed = createApplicationSchema.safeParse(raw);
-  if (parsed.success) tagIds = parsed.data.tagIds ?? [];
+	const parsed = createApplicationSchema.safeParse(raw);
+	if (parsed.success) tagIds = parsed.data.tagIds ?? [];
 
-  if (parsed.success) {
-    const resume = formData.get("resume") as File | null;
-    const coverLetter = formData.get("cover_letter") as File | null;
+	if (parsed.success) {
+		const resume = formData.get("resume") as File | null;
+		const coverLetter = formData.get("cover_letter") as File | null;
 
-    const MAX_SIZE = 10 * 1024 * 1024;
-    const ALLOWED_EXTS = [".pdf", ".png", ".jpg", ".jpeg", ".webp"];
+		const MAX_SIZE = 10 * 1024 * 1024;
+		const ALLOWED_EXTS = [".pdf", ".png", ".jpg", ".jpeg", ".webp"];
 
-    let fileError = "";
-    for (const [label, file] of [["CV", resume], ["Lettre de motivation", coverLetter]] as const) {
-      if (file && file.size > 0) {
-        const ext = "." + file.name.split(".").pop()?.toLowerCase();
-        if (file.size > MAX_SIZE) {
-          fileError = `${label} : le fichier ne doit pas dépasser 10 Mo`;
-          break;
-        }
-        if (!ALLOWED_EXTS.includes(ext)) {
-          fileError = `${label} : format non autorisé (PDF, PNG, JPG, WebP)`;
-          break;
-        }
-      }
-    }
+		let fileError = "";
+		for (const [label, file] of [
+			["CV", resume],
+			["Lettre de motivation", coverLetter],
+		] as const) {
+			if (file && file.size > 0) {
+				const ext = "." + file.name.split(".").pop()?.toLowerCase();
+				if (file.size > MAX_SIZE) {
+					fileError = `${label} : le fichier ne doit pas dépasser 10 Mo`;
+					break;
+				}
+				if (!ALLOWED_EXTS.includes(ext)) {
+					fileError = `${label} : format non autorisé (PDF, PNG, JPG, WebP)`;
+					break;
+				}
+			}
+		}
 
-    if (fileError) {
-      globalError = fileError;
-    } else {
-      const result = await createApplication(userId, parsed.data);
+		if (fileError) {
+			globalError = fileError;
+		} else {
+			const result = await createApplication(userId, parsed.data);
 
-      if (result.success) {
-        if (resume && resume.size > 0) {
-          const r = await uploadDocument(result.id, "resume", resume);
-          if (!r.success) {
-            globalError = `CV : ${r.error}`;
-          }
-        }
-        if (!globalError && coverLetter && coverLetter.size > 0) {
-          const r = await uploadDocument(result.id, "cover_letter", coverLetter);
-          if (!r.success) {
-            globalError = `Lettre de motivation : ${r.error}`;
-          }
-        }
+			if (result.success) {
+				if (resume && resume.size > 0) {
+					const r = await uploadDocument(result.id, "resume", resume);
+					if (!r.success) {
+						globalError = `CV : ${r.error}`;
+					}
+				}
+				if (!globalError && coverLetter && coverLetter.size > 0) {
+					const r = await uploadDocument(
+						result.id,
+						"cover_letter",
+						coverLetter,
+					);
+					if (!r.success) {
+						globalError = `Lettre de motivation : ${r.error}`;
+					}
+				}
 
-        if (globalError) {
-          errors = {};
-          Object.assign(values, raw);
-        } else {
-          return Astro.redirect("/applications");
-        }
-      } else {
-        globalError = result.error;
-      }
-    }
-  } else {
-    for (const issue of parsed.error.issues) {
-      const path = issue.path.join(".");
-      if (!errors[path]) {
-        errors[path] = issue.message;
-      }
-    }
-  }
+				if (globalError) {
+					errors = {};
+					Object.assign(values, raw);
+				} else {
+					return Astro.redirect("/applications");
+				}
+			} else {
+				globalError = result.error;
+			}
+		}
+	} else {
+		for (const issue of parsed.error.issues) {
+			const path = issue.path.join(".");
+			if (!errors[path]) {
+				errors[path] = issue.message;
+			}
+		}
+	}
 }
 ---
 

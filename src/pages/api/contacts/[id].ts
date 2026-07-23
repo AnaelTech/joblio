@@ -1,5 +1,8 @@
 import type { APIRoute } from "astro";
-import { updateContact, deleteContact } from "../../../features/contacts/actions";
+import {
+	updateContact,
+	deleteContact,
+} from "../../../features/contacts/actions";
 
 export const prerender = false;
 

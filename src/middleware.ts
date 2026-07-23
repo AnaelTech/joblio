@@ -7,7 +7,14 @@ export const onRequest = defineMiddleware(async (context, next) => {
 	const { url, cookies, redirect } = context;
 	const pathname = url.pathname;
 
-	if (pathname.startsWith("/_astro") || pathname.startsWith("/uploads") || pathname.startsWith("/favicon")) {
+	if (
+		pathname.startsWith("/_astro") ||
+		pathname.startsWith("/uploads") ||
+		pathname.startsWith("/favicon") ||
+		pathname === "/sw.js" ||
+		pathname.startsWith("/dev-sw.js") ||
+		pathname === "/manifest.webmanifest"
+	) {
 		return next();
 	}
 

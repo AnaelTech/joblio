@@ -15,21 +15,29 @@ const companyOptions = await getCompanyOptions(userId);
 
 let errors: Record<string, string> = {};
 let globalError = "";
-const values: Record<string, string> = { name: "", companyId: "", role: "", email: "", phone: "", linkedin: "", notes: "" };
+const values: Record<string, string> = {
+	name: "",
+	companyId: "",
+	role: "",
+	email: "",
+	phone: "",
+	linkedin: "",
+	notes: "",
+};
 
 if (Astro.request.method === "POST") {
-  const result = await handleForm(
-    Astro.request,
-    createContactSchema,
-    (data) => createContact(userId, data),
-    values,
-  );
+	const result = await handleForm(
+		Astro.request,
+		createContactSchema,
+		(data) => createContact(userId, data),
+		values,
+	);
 
-  if (result.success) return Astro.redirect("/contacts");
+	if (result.success) return Astro.redirect("/contacts");
 
-  errors = result.errors;
-  globalError = result.globalError;
-  Object.assign(values, result.values);
+	errors = result.errors;
+	globalError = result.globalError;
+	Object.assign(values, result.values);
 }
 ---
 

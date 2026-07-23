@@ -3,10 +3,19 @@ export const prerender = false;
 
 import AppLayout from "@/layouts/AppLayout.astro";
 import SettingsPage from "@/features/settings/components/SettingsPage";
+import { client } from "@/db/client";
 
 const user = Astro.locals.user;
+
+let dbVersion = "?";
+try {
+	const rows = await client`SHOW server_version;`;
+	dbVersion = rows[0]?.server_version ?? "?";
+} catch {
+	dbVersion = "?";
+}
 ---
 
 <AppLayout title="Paramètres - Joblio">
-  <SettingsPage user={user} client:load />
+  <SettingsPage user={user} dbVersion={dbVersion} client:load />
 </AppLayout>

@@ -1,4 +1,5 @@
 import { db } from "@/db/client";
+import { sessions } from "@/db/schema/sessions";
 import { users } from "@/db/schema/users";
 import { eq } from "drizzle-orm";
 import bcrypt from "bcryptjs";
@@ -74,12 +75,12 @@ export async function login(
 			return { success: false, error: "Email ou mot de passe incorrect" };
 		}
 
-		const sessionToken = randomUUID();
-		await db.update(users).set({ sessionToken }).where(eq(users.id, user.id));
+		const token = randomUUID();
+		await db.insert(sessions).values({ userId: user.id, token });
 
 		return {
 			success: true,
-			sessionToken,
+			sessionToken: token,
 			user: { id: user.id, name: user.name, email: user.email },
 		};
 	} catch (e) {
@@ -95,18 +96,20 @@ export async function getSession(
 ): Promise<{ id: string; name: string; email: string } | null> {
 	if (!token) return null;
 
-	const [user] = await db
-		.select({ id: users.id, name: users.name, email: users.email })
-		.from(users)
-		.where(eq(users.sessionToken, token))
+	const [session] = await db
+		.select({
+			id: users.id,
+			name: users.name,
+			email: users.email,
+		})
+		.from(sessions)
+		.innerJoin(users, eq(sessions.userId, users.id))
+		.where(eq(sessions.token, token))
 		.limit(1);
 
-	return user ?? null;
+	return session ?? null;
 }
 
 export async function logout(token: string): Promise<void> {
-	await db
-		.update(users)
-		.set({ sessionToken: null })
-		.where(eq(users.sessionToken, token));
+	await db.delete(sessions).where(eq(sessions.token, token));
 }

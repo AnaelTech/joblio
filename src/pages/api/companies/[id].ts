@@ -1,5 +1,8 @@
 import type { APIRoute } from "astro";
-import { updateCompany, deleteCompany } from "../../../features/companies/actions";
+import {
+	updateCompany,
+	deleteCompany,
+} from "../../../features/companies/actions";
 
 export const prerender = false;
 

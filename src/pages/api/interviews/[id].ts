@@ -1,5 +1,8 @@
 import type { APIRoute } from "astro";
-import { updateInterview, deleteInterview } from "../../../features/interviews/actions";
+import {
+	updateInterview,
+	deleteInterview,
+} from "../../../features/interviews/actions";
 
 export const prerender = false;
 

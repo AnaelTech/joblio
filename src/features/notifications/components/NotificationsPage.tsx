@@ -65,16 +65,18 @@ function NotificationsInner() {
 					</button>
 				</div>
 
-				{unreadCount > 0 && (
-					<button
-						type="button"
-						onClick={() => markAllRead.mutate()}
-						className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-input px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
-					>
-						<CheckCheck className="size-4" />
-						Tout marquer comme lu
-					</button>
-				)}
+				<div className="flex items-center gap-2">
+					{unreadCount > 0 && (
+						<button
+							type="button"
+							onClick={() => markAllRead.mutate()}
+							className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-input px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
+						>
+							<CheckCheck className="size-4" />
+							Tout marquer comme lu
+						</button>
+					)}
+				</div>
 			</div>
 
 			{items.length === 0 ? (

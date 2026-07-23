@@ -22,7 +22,7 @@ function LayoutInner({ children, user }: Props) {
 			<AppSidebar user={user} />
 
 			<SidebarInset>
-				<header className="flex h-14 items-center gap-2 border-b px-4">
+				<header className="flex h-14 items-center gap-2 border-b px-4 safe-area-top">
 					<div className="md:hidden">
 						<SidebarTrigger />
 					</div>
@@ -30,7 +30,7 @@ function LayoutInner({ children, user }: Props) {
 					<span className="font-semibold">Joblio</span>
 				</header>
 
-				<main className="p-6">{children}</main>
+				<main className="overflow-y-auto p-6 safe-area-bottom">{children}</main>
 			</SidebarInset>
 		</SidebarProvider>
 	);

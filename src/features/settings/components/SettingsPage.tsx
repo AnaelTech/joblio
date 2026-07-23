@@ -63,9 +63,10 @@ interface Props {
 		name: string;
 		email: string;
 	};
+	dbVersion: string;
 }
 
-function SettingsPageInner({ user }: Props) {
+function SettingsPageInner({ user, dbVersion }: Props) {
 	const updateProfileMutation = useUpdateProfile();
 	const changePasswordMutation = useChangePassword();
 	const updateNotificationsMutation = useUpdateNotificationPreferences();
@@ -568,7 +569,7 @@ function SettingsPageInner({ user }: Props) {
 							<Separator />
 							<div class="flex justify-between">
 								<dt class="text-muted-foreground">Version</dt>
-								<dd class="font-medium">1.0.0</dd>
+								<dd class="font-medium">{dbVersion}</dd>
 							</div>
 						</dl>
 					</CardContent>
@@ -609,10 +610,10 @@ function SettingsPageInner({ user }: Props) {
 	);
 }
 
-export default function SettingsPage(props: Props) {
+export default function SettingsPage({ user, dbVersion }: Props) {
 	return (
 		<QueryClientProvider client={queryClient}>
-			<SettingsPageInner {...props} />
+			<SettingsPageInner user={user} dbVersion={dbVersion} />
 		</QueryClientProvider>
 	);
 }

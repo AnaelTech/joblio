@@ -202,15 +202,14 @@ npm run dev
 
 ### Next
 
-- [ ] Authentication
-- [ ] Calendar
-- [ ] Notifications
-- [ ] Kanban view
+- [x] Authentication
+- [x] Calendar
+- [x] Notifications
 - [ ] Email integration
 - [ ] Import job offers
 - [ ] AI-powered resume analysis
 - [ ] Browser extension
-- [ ] Mobile support
+- [x] Mobile support
 
 ---
 

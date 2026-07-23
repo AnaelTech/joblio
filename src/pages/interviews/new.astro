@@ -16,21 +16,28 @@ const applicationOptions = await getApplicationOptions(userId);
 
 let errors: Record<string, string> = {};
 let globalError = "";
-const values: Record<string, string> = { applicationId: "", type: "phone_screen", scheduledAt: "", duration: "", interviewer: "", notes: "" };
+const values: Record<string, string> = {
+	applicationId: "",
+	type: "phone_screen",
+	scheduledAt: "",
+	duration: "",
+	interviewer: "",
+	notes: "",
+};
 
 if (Astro.request.method === "POST") {
-  const result = await handleForm(
-    Astro.request,
-    createInterviewSchema,
-    (data) => createInterview(userId, data),
-    values,
-  );
+	const result = await handleForm(
+		Astro.request,
+		createInterviewSchema,
+		(data) => createInterview(userId, data),
+		values,
+	);
 
-  if (result.success) return Astro.redirect("/interviews");
+	if (result.success) return Astro.redirect("/interviews");
 
-  errors = result.errors;
-  globalError = result.globalError;
-  Object.assign(values, result.values);
+	errors = result.errors;
+	globalError = result.globalError;
+	Object.assign(values, result.values);
 }
 ---
 

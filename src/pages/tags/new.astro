@@ -15,18 +15,18 @@ let globalError = "";
 const values: Record<string, string> = { name: "", color: "" };
 
 if (Astro.request.method === "POST") {
-  const result = await handleForm(
-    Astro.request,
-    createTagSchema,
-    (data) => createTag(data),
-    values,
-  );
+	const result = await handleForm(
+		Astro.request,
+		createTagSchema,
+		(data) => createTag(data),
+		values,
+	);
 
-  if (result.success) return Astro.redirect("/tags");
+	if (result.success) return Astro.redirect("/tags");
 
-  errors = result.errors;
-  globalError = result.globalError;
-  Object.assign(values, result.values);
+	errors = result.errors;
+	globalError = result.globalError;
+	Object.assign(values, result.values);
 }
 ---
 

@@ -17,10 +17,6 @@ export const users = pgTable("users", {
 		length: 255,
 	}).notNull(),
 
-	sessionToken: varchar("session_token", {
-		length: 255,
-	}),
-
 	notifyFollowUp: boolean("notify_follow_up").default(false).notNull(),
 
 	notifyInterview: boolean("notify_interview").default(false).notNull(),

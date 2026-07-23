@@ -1,6 +1,6 @@
 {
-	"id": "6a936219-4a87-4c26-bf48-36bf304baeab",
-	"prevId": "5295eef9-41c9-46b4-8bcd-e8238352b141",
+	"id": "8c4b89fc-843c-4f84-8e6f-376904eace14",
+	"prevId": "58751cf6-24f8-416c-ba74-116d932f146b",
 	"version": "7",
 	"dialect": "postgresql",
 	"tables": {
@@ -169,6 +169,12 @@
 					"notNull": true,
 					"default": "gen_random_uuid()"
 				},
+				"user_id": {
+					"name": "user_id",
+					"type": "uuid",
+					"primaryKey": false,
+					"notNull": true
+				},
 				"company_id": {
 					"name": "company_id",
 					"type": "uuid",
@@ -301,6 +307,21 @@
 				}
 			},
 			"indexes": {
+				"applications_user_idx": {
+					"name": "applications_user_idx",
+					"columns": [
+						{
+							"expression": "user_id",
+							"isExpression": false,
+							"asc": true,
+							"nulls": "last"
+						}
+					],
+					"isUnique": false,
+					"concurrently": false,
+					"method": "btree",
+					"with": {}
+				},
 				"applications_company_idx": {
 					"name": "applications_company_idx",
 					"columns": [
@@ -408,6 +429,15 @@
 				}
 			},
 			"foreignKeys": {
+				"applications_user_id_users_id_fk": {
+					"name": "applications_user_id_users_id_fk",
+					"tableFrom": "applications",
+					"tableTo": "users",
+					"columnsFrom": ["user_id"],
+					"columnsTo": ["id"],
+					"onDelete": "cascade",
+					"onUpdate": "no action"
+				},
 				"applications_company_id_companies_id_fk": {
 					"name": "applications_company_id_companies_id_fk",
 					"tableFrom": "applications",
@@ -443,6 +473,12 @@
 					"primaryKey": true,
 					"notNull": true,
 					"default": "gen_random_uuid()"
+				},
+				"user_id": {
+					"name": "user_id",
+					"type": "uuid",
+					"primaryKey": false,
+					"notNull": true
 				},
 				"name": {
 					"name": "name",
@@ -492,10 +528,43 @@
 					"primaryKey": false,
 					"notNull": true,
 					"default": "now()"
+				},
+				"updated_at": {
+					"name": "updated_at",
+					"type": "timestamp",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "now()"
 				}
 			},
-			"indexes": {},
-			"foreignKeys": {},
+			"indexes": {
+				"companies_user_idx": {
+					"name": "companies_user_idx",
+					"columns": [
+						{
+							"expression": "user_id",
+							"isExpression": false,
+							"asc": true,
+							"nulls": "last"
+						}
+					],
+					"isUnique": false,
+					"concurrently": false,
+					"method": "btree",
+					"with": {}
+				}
+			},
+			"foreignKeys": {
+				"companies_user_id_users_id_fk": {
+					"name": "companies_user_id_users_id_fk",
+					"tableFrom": "companies",
+					"tableTo": "users",
+					"columnsFrom": ["user_id"],
+					"columnsTo": ["id"],
+					"onDelete": "cascade",
+					"onUpdate": "no action"
+				}
+			},
 			"compositePrimaryKeys": {},
 			"uniqueConstraints": {},
 			"policies": {},
@@ -791,6 +860,233 @@
 			"checkConstraints": {},
 			"isRLSEnabled": false
 		},
+		"public.notifications": {
+			"name": "notifications",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "uuid",
+					"primaryKey": true,
+					"notNull": true,
+					"default": "gen_random_uuid()"
+				},
+				"user_id": {
+					"name": "user_id",
+					"type": "uuid",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"type": {
+					"name": "type",
+					"type": "varchar(50)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"title": {
+					"name": "title",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"message": {
+					"name": "message",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"link": {
+					"name": "link",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"read": {
+					"name": "read",
+					"type": "boolean",
+					"primaryKey": false,
+					"notNull": true,
+					"default": false
+				},
+				"application_id": {
+					"name": "application_id",
+					"type": "uuid",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"interview_id": {
+					"name": "interview_id",
+					"type": "uuid",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"created_at": {
+					"name": "created_at",
+					"type": "timestamp",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "now()"
+				}
+			},
+			"indexes": {
+				"notifications_user_idx": {
+					"name": "notifications_user_idx",
+					"columns": [
+						{
+							"expression": "user_id",
+							"isExpression": false,
+							"asc": true,
+							"nulls": "last"
+						}
+					],
+					"isUnique": false,
+					"concurrently": false,
+					"method": "btree",
+					"with": {}
+				},
+				"notifications_read_idx": {
+					"name": "notifications_read_idx",
+					"columns": [
+						{
+							"expression": "read",
+							"isExpression": false,
+							"asc": true,
+							"nulls": "last"
+						}
+					],
+					"isUnique": false,
+					"concurrently": false,
+					"method": "btree",
+					"with": {}
+				},
+				"notifications_created_at_idx": {
+					"name": "notifications_created_at_idx",
+					"columns": [
+						{
+							"expression": "created_at",
+							"isExpression": false,
+							"asc": true,
+							"nulls": "last"
+						}
+					],
+					"isUnique": false,
+					"concurrently": false,
+					"method": "btree",
+					"with": {}
+				}
+			},
+			"foreignKeys": {
+				"notifications_user_id_users_id_fk": {
+					"name": "notifications_user_id_users_id_fk",
+					"tableFrom": "notifications",
+					"tableTo": "users",
+					"columnsFrom": ["user_id"],
+					"columnsTo": ["id"],
+					"onDelete": "cascade",
+					"onUpdate": "no action"
+				},
+				"notifications_application_id_applications_id_fk": {
+					"name": "notifications_application_id_applications_id_fk",
+					"tableFrom": "notifications",
+					"tableTo": "applications",
+					"columnsFrom": ["application_id"],
+					"columnsTo": ["id"],
+					"onDelete": "cascade",
+					"onUpdate": "no action"
+				},
+				"notifications_interview_id_interviews_id_fk": {
+					"name": "notifications_interview_id_interviews_id_fk",
+					"tableFrom": "notifications",
+					"tableTo": "interviews",
+					"columnsFrom": ["interview_id"],
+					"columnsTo": ["id"],
+					"onDelete": "cascade",
+					"onUpdate": "no action"
+				}
+			},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {},
+			"policies": {},
+			"checkConstraints": {},
+			"isRLSEnabled": false
+		},
+		"public.sessions": {
+			"name": "sessions",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "uuid",
+					"primaryKey": true,
+					"notNull": true,
+					"default": "gen_random_uuid()"
+				},
+				"user_id": {
+					"name": "user_id",
+					"type": "uuid",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"token": {
+					"name": "token",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"created_at": {
+					"name": "created_at",
+					"type": "timestamp",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "now()"
+				},
+				"expires_at": {
+					"name": "expires_at",
+					"type": "timestamp",
+					"primaryKey": false,
+					"notNull": false
+				}
+			},
+			"indexes": {
+				"sessions_user_id_idx": {
+					"name": "sessions_user_id_idx",
+					"columns": [
+						{
+							"expression": "user_id",
+							"isExpression": false,
+							"asc": true,
+							"nulls": "last"
+						}
+					],
+					"isUnique": false,
+					"concurrently": false,
+					"method": "btree",
+					"with": {}
+				}
+			},
+			"foreignKeys": {
+				"sessions_user_id_users_id_fk": {
+					"name": "sessions_user_id_users_id_fk",
+					"tableFrom": "sessions",
+					"tableTo": "users",
+					"columnsFrom": ["user_id"],
+					"columnsTo": ["id"],
+					"onDelete": "cascade",
+					"onUpdate": "no action"
+				}
+			},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {
+				"sessions_token_unique": {
+					"name": "sessions_token_unique",
+					"nullsNotDistinct": false,
+					"columns": ["token"]
+				}
+			},
+			"policies": {},
+			"checkConstraints": {},
+			"isRLSEnabled": false
+		},
 		"public.tags": {
 			"name": "tags",
 			"schema": "",
@@ -840,6 +1136,12 @@
 					"notNull": true,
 					"default": "gen_random_uuid()"
 				},
+				"name": {
+					"name": "name",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": true
+				},
 				"email": {
 					"name": "email",
 					"type": "varchar(255)",
@@ -851,6 +1153,20 @@
 					"type": "varchar(255)",
 					"primaryKey": false,
 					"notNull": true
+				},
+				"notify_follow_up": {
+					"name": "notify_follow_up",
+					"type": "boolean",
+					"primaryKey": false,
+					"notNull": true,
+					"default": false
+				},
+				"notify_interview": {
+					"name": "notify_interview",
+					"type": "boolean",
+					"primaryKey": false,
+					"notNull": true,
+					"default": false
 				},
 				"created_at": {
 					"name": "created_at",
