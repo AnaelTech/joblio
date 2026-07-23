@@ -43,6 +43,13 @@
 			"when": 1784813593251,
 			"tag": "0005_thankful_shinko_yamashiro",
 			"breakpoints": true
+		},
+		{
+			"idx": 6,
+			"version": "7",
+			"when": 1742587200000,
+			"tag": "0006_notifications",
+			"breakpoints": true
 		}
 	]
 }
