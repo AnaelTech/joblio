@@ -1,0 +1,36 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: joblio
+      POSTGRES_PASSWORD: joblio
+      POSTGRES_DB: joblio
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U joblio"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build: .
+    restart: unless-stopped
+    ports:
+      - "4321:4321"
+    environment:
+      DATABASE_URL: postgres://joblio:joblio@postgres:5432/joblio
+      UPLOADS_DIR: /app/dist/client/uploads
+      HOST: 0.0.0.0
+      PORT: 4321
+      NODE_ENV: production
+    volumes:
+      - uploads:/app/dist/client/uploads
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
+  uploads:

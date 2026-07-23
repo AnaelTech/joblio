@@ -7,7 +7,6 @@ import "../styles/global.css";
 
 const { title = "Joblio" } = Astro.props;
 const user = Astro.locals.user;
-const isDev = import.meta.env.DEV;
 ---
 
 <!doctype html>
@@ -90,19 +89,11 @@ const isDev = import.meta.env.DEV;
 
 	</TooltipProvider>
 
-	{isDev ? (
-		<script is:inline>
-			if ("serviceWorker" in navigator) {
-				navigator.serviceWorker.register("/dev-sw.js?dev-sw", { type: "module" });
-			}
-		</script>
-	) : (
-		<script is:inline>
-			if ("serviceWorker" in navigator) {
-				navigator.serviceWorker.register("/sw.js");
-			}
-		</script>
-	)}
+	<script is:inline>
+		if ("serviceWorker" in navigator) {
+			navigator.serviceWorker.register("/sw.js");
+		}
+	</script>
 
 </body>
 

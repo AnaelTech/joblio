@@ -1,12 +1,17 @@
-import { precacheAndRoute } from "workbox-precaching";
-import { clientsClaim } from "workbox-core";
+const CACHE = "joblio-v1";
 
-declare let self: ServiceWorkerGlobalScope;
+self.addEventListener("install", () => {
+	self.skipWaiting();
+});
 
-self.skipWaiting();
-clientsClaim();
-
-precacheAndRoute(self.__WB_MANIFEST);
+self.addEventListener("activate", (event) => {
+	event.waitUntil(
+		caches.keys().then((keys) =>
+			Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k))),
+		),
+	);
+	self.clients.claim();
+});
 
 self.addEventListener("message", (event) => {
 	if (event.data?.type === "SHOW_NOTIFICATION") {

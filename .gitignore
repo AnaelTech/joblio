@@ -30,4 +30,7 @@ DATABASE.md
 # uploaded files
 public/uploads/
 
+# vite-plugin-pwa dev output
+dev-dist/
+
 

@@ -6,7 +6,8 @@ import { join } from "node:path";
 import { randomUUID } from "node:crypto";
 import { DOCUMENT_TYPES } from "@/features/documents/schema";
 
-const UPLOADS_DIR = join(process.cwd(), "public", "uploads");
+const UPLOADS_DIR =
+	process.env.UPLOADS_DIR ?? join(process.cwd(), "public", "uploads");
 const MAX_SIZE = 10 * 1024 * 1024;
 
 const EXTENSION_MAP: Record<string, string[]> = {
@@ -167,7 +168,10 @@ export async function deleteDocument(
 
 		await db.delete(documents).where(eq(documents.id, id));
 
-		const absolutePath = join(process.cwd(), "public", doc.storagePath);
+		const absolutePath = join(
+			process.env.UPLOADS_DIR ?? join(process.cwd(), "public"),
+			doc.storagePath,
+		);
 		await unlink(absolutePath).catch(() => {});
 
 		return { success: true };

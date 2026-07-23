@@ -7,20 +7,18 @@ import react from "@astrojs/react";
 
 import { VitePWA } from "vite-plugin-pwa";
 
+import node from "@astrojs/node";
+
 // https://astro.build/config
 export default defineConfig({
 	vite: {
 		plugins: [
 			tailwindcss(),
 			VitePWA({
-				strategies: "injectManifest",
-				srcDir: "src",
-				filename: "sw.ts",
 				registerType: "autoUpdate",
 				injectRegister: null,
 				devOptions: {
 					enabled: true,
-					type: "module",
 				},
 				manifest: {
 					name: "Joblio",
@@ -59,10 +57,11 @@ export default defineConfig({
 						},
 					],
 				},
-				injectManifest: {},
 			}),
 		],
 	},
 
+	output: "server",
+	adapter: node({ mode: "standalone" }),
 	integrations: [react()],
 });

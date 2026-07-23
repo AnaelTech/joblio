@@ -187,7 +187,64 @@ npm run dev
 
 ---
 
-## 📋 Roadmap
+## 🐳 Self-hosting avec Docker
+
+### Prérequis
+
+- [Docker](https://docs.docker.com/engine/install/) ou [Podman](https://podman.io/docs/installation)
+- [Docker Compose](https://docs.docker.com/compose/install/) (inclus avec Docker Desktop)
+
+### Installation
+
+```bash
+# 1. Cloner le dépôt
+git clone https://github.com/votre-utilisateur/joblio.git
+cd joblio
+
+# 2. Lancer l'application
+docker compose up -d
+```
+
+L'application est accessible sur **http://localhost:4321**.
+
+Le premier lancement :
+1. Ouvrir `http://localhost:4321`
+2. Créer le compte administrateur (formulaire de setup)
+3. Commencer à utiliser Joblio
+
+### Configuration
+
+Les variables d'environnement peuvent être modifiées dans `docker-compose.yml` :
+
+| Variable | Défaut | Description |
+|---|---|---|
+| `DATABASE_URL` | `postgres://joblio:joblio@postgres:5432/joblio` | Connexion PostgreSQL |
+| `UPLOADS_DIR` | `/app/dist/client/uploads` | Répertoire des fichiers uploadés |
+| `PORT` | `4321` | Port de l'application |
+
+### Persistance des données
+
+Les données sont stockées dans des volumes Docker :
+
+- `postgres_data` — base de données
+- `uploads` — fichiers uploadés (CV, lettres, etc.)
+
+```bash
+# Sauvegarder la base de données
+docker compose exec postgres pg_dump -U joblio joblio > backup.sql
+
+# Restaurer
+cat backup.sql | docker compose exec -T postgres psql -U joblio joblio
+```
+
+### Mise à jour
+
+```bash
+git pull
+docker compose up -d --build
+```
+
+---
 
 ### MVP
 
