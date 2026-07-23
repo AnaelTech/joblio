@@ -26,12 +26,19 @@ const user = Astro.locals.user;
 	<link rel="apple-touch-startup-image" href="/pwa-icons/icon-512x512.png" media="(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3)" />
 	<ClientRouter />
 	<title>{title}</title>
-	<script>
+	<script is:inline>
 		(function() {
 			const theme = localStorage.getItem("theme") ?? "system";
 			const isDark = theme === "dark" || (theme === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches);
 			if (isDark) document.documentElement.classList.add("dark");
 		})();
+	</script>
+	<script is:inline>
+		document.addEventListener("astro:after-swap", function() {
+			const theme = localStorage.getItem("theme") ?? "system";
+			const isDark = theme === "dark" || (theme === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches);
+			document.documentElement.classList.toggle("dark", isDark);
+		});
 	</script>
 	<style>
 		#nprogress {
