@@ -1,6 +1,8 @@
 import {
+	Bell,
 	BriefcaseBusiness,
 	Building2,
+	Calendar,
 	CalendarDays,
 	ChevronLeft,
 	ChevronRight,
@@ -17,6 +19,7 @@ import {
 	TooltipContent,
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useUnreadCount } from "@/features/notifications/hooks";
 import { cn } from "@/lib/utils";
 
 const sections = [
@@ -28,6 +31,8 @@ const sections = [
 		label: "Suivi",
 		items: [
 			{ title: "Candidatures", url: "/applications", icon: BriefcaseBusiness },
+			{ title: "Calendrier", url: "/calendar", icon: Calendar },
+			{ title: "Notifications", url: "/notifications", icon: Bell },
 			{ title: "Entreprises", url: "/companies", icon: Building2 },
 			{ title: "Contacts", url: "/contacts", icon: ContactRound },
 			{ title: "Entretiens", url: "/interviews", icon: CalendarDays },
@@ -60,30 +65,38 @@ function NavItem({
 	url,
 	collapsed,
 	isActive,
+	badge,
 }: {
 	icon: React.ComponentType<{ className?: string }>;
 	title: string;
 	url: string;
 	collapsed: boolean;
 	isActive: boolean;
+	badge?: number;
 }) {
 	const inner = (
 		<a
 			href={url}
 			aria-label={collapsed ? title : undefined}
 			className={cn(
-				"flex items-center rounded-xl transition-all duration-150",
+				"relative flex items-center rounded-xl transition-all duration-150",
 				collapsed ? "mx-auto size-10 justify-center" : "h-11 w-full gap-3 px-3",
 				isActive
 					? "bg-sidebar-accent text-primary font-medium"
 					: "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
 			)}
 		>
-			<Icon className="size-5 shrink-0" />
-			{!collapsed && (
-				<>
-					<span className="truncate text-sm">{title}</span>
-				</>
+			<div className="relative shrink-0">
+				<Icon className="size-5" />
+				{collapsed && badge !== undefined && badge > 0 && (
+					<span className="absolute -right-1 -top-1 size-2.5 rounded-full bg-red-500 ring-2 ring-sidebar" />
+				)}
+			</div>
+			{!collapsed && <span className="truncate text-sm">{title}</span>}
+			{!collapsed && badge !== undefined && badge > 0 && (
+				<span className="ml-auto flex min-w-5 items-center justify-center rounded-full bg-red-500 px-1.5 text-[10px] font-bold leading-5 text-white">
+					{badge > 99 ? "99+" : badge}
+				</span>
 			)}
 		</a>
 	);
@@ -118,6 +131,11 @@ function SidebarInner({ user }: SidebarProps) {
 	const { state, open, setOpen, setOpenMobile, isMobile } = useSidebar();
 	const activePath = useActivePath();
 	const collapsed = !isMobile && state === "collapsed";
+	const { data: unreadCount } = useUnreadCount();
+
+	function notificationBadge(title: string) {
+		return title === "Notifications" ? unreadCount : undefined;
+	}
 
 	const handleToggle = useCallback(() => {
 		setOpen(!open);
@@ -199,6 +217,7 @@ function SidebarInner({ user }: SidebarProps) {
 									{...item}
 									collapsed
 									isActive={activePath === item.url}
+									badge={notificationBadge(item.title)}
 								/>
 							))}
 						</nav>
@@ -216,6 +235,7 @@ function SidebarInner({ user }: SidebarProps) {
 												{...item}
 												collapsed={false}
 												isActive={activePath === item.url}
+												badge={notificationBadge(item.title)}
 											/>
 										))}
 									</div>

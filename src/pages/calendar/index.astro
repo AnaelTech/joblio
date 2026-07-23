@@ -1,0 +1,36 @@
+---
+export const prerender = false;
+
+import CalendarPage from "@/features/calendar/components/CalendarPage";
+import { getCalendarEvents } from "@/features/calendar/queries";
+import type { CalendarEvent } from "@/features/calendar/types";
+import AppLayout from "@/layouts/AppLayout.astro";
+
+const userId = Astro.locals.user?.id;
+
+const now = new Date();
+const startDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+const endDate = new Date(now.getFullYear(), now.getMonth() + 2, 0, 23, 59, 59);
+
+const events: CalendarEvent[] = userId
+	? await getCalendarEvents(userId, startDate, endDate)
+	: [];
+
+const initialEvents = events.map((e) => ({
+	...e,
+	date: e.date instanceof Date ? e.date.toISOString() : String(e.date),
+}));
+---
+
+<AppLayout title="Calendrier - Joblio">
+  <div class="flex h-full flex-col">
+    <div class="mb-4">
+      <h1 class="text-2xl font-bold tracking-tight">Calendrier</h1>
+      <p class="text-muted-foreground">
+        Vos entretiens, relances et échéances au même endroit
+      </p>
+    </div>
+
+    <CalendarPage initialEvents={initialEvents} client:load />
+  </div>
+</AppLayout>

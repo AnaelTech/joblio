@@ -22,7 +22,7 @@ if (Astro.request.method === "POST") {
   const result = await handleForm(
     Astro.request,
     createInterviewSchema,
-    (data) => createInterview(data),
+    (data) => createInterview(userId, data),
     values,
   );
 

@@ -1,9 +1,10 @@
+import { QueryClientProvider } from "@tanstack/react-query";
 import {
-	SidebarProvider,
 	SidebarInset,
+	SidebarProvider,
 	SidebarTrigger,
 } from "@/components/ui/sidebar";
-
+import { queryClient } from "@/lib/query-client";
 import AppSidebar from "./AppSidebar";
 
 interface Props {
@@ -15,7 +16,7 @@ interface Props {
 	} | null;
 }
 
-export default function AppSidebarLayout({ children, user }: Props) {
+function LayoutInner({ children, user }: Props) {
 	return (
 		<SidebarProvider>
 			<AppSidebar user={user} />
@@ -32,5 +33,13 @@ export default function AppSidebarLayout({ children, user }: Props) {
 				<main className="p-6">{children}</main>
 			</SidebarInset>
 		</SidebarProvider>
+	);
+}
+
+export default function AppSidebarLayout({ children, user }: Props) {
+	return (
+		<QueryClientProvider client={queryClient}>
+			<LayoutInner user={user}>{children}</LayoutInner>
+		</QueryClientProvider>
 	);
 }
