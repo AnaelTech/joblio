@@ -3,7 +3,12 @@ import type { ApplicationData } from "./components/ApplicationModal";
 const BASE = "/api/applications";
 
 export async function fetchApplications(
-	filters: { q?: string; status?: string; priority?: string; archived?: string } = {},
+	filters: {
+		q?: string;
+		status?: string;
+		priority?: string;
+		archived?: string;
+	} = {},
 ): Promise<ApplicationData[]> {
 	const params = new URLSearchParams();
 	if (filters.q) params.set("q", filters.q);

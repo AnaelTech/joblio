@@ -7,13 +7,7 @@ import {
 	type ColumnDef,
 } from "@tanstack/react-table";
 import { useState } from "react";
-import {
-	MapPin,
-	Star,
-	ArrowUpDown,
-	ArrowUp,
-	ArrowDown,
-} from "lucide-react";
+import { MapPin, Star, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
 import {
 	STATUS_LABELS,
 	STATUS_COLORS,
@@ -22,7 +16,7 @@ import {
 } from "@/features/applications/constants";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
-	import type { ApplicationData, ApplicationTag } from "./ApplicationModal";
+import type { ApplicationData, ApplicationTag } from "./ApplicationModal";
 import {
 	Table,
 	TableBody,
@@ -99,7 +93,8 @@ export default function ApplicationTable({ data, onSelect }: Props) {
 			header: "Tags",
 			cell: ({ row }) => {
 				const appTags: ApplicationTag[] = row.original.tags ?? [];
-				if (appTags.length === 0) return <span className="text-muted-foreground">—</span>;
+				if (appTags.length === 0)
+					return <span className="text-muted-foreground">—</span>;
 				return (
 					<div className="flex flex-wrap gap-1">
 						{appTags.slice(0, 3).map((t) => (
@@ -115,7 +110,9 @@ export default function ApplicationTable({ data, onSelect }: Props) {
 							</span>
 						))}
 						{appTags.length > 3 && (
-							<span className="text-[11px] text-muted-foreground">+{appTags.length - 3}</span>
+							<span className="text-[11px] text-muted-foreground">
+								+{appTags.length - 3}
+							</span>
 						)}
 					</div>
 				);
@@ -192,8 +189,12 @@ export default function ApplicationTable({ data, onSelect }: Props) {
 							</div>
 							<div className="flex min-w-0 flex-1 flex-col gap-1.5">
 								<div className="min-w-0">
-									<p className="truncate text-sm font-medium">{app.companyName}</p>
-									<p className="truncate text-sm text-muted-foreground">{app.title}</p>
+									<p className="truncate text-sm font-medium">
+										{app.companyName}
+									</p>
+									<p className="truncate text-sm text-muted-foreground">
+										{app.title}
+									</p>
 								</div>
 								<div className="flex flex-wrap items-center gap-1.5">
 									<span
@@ -201,24 +202,24 @@ export default function ApplicationTable({ data, onSelect }: Props) {
 									>
 										{STATUS_LABELS[app.status] ?? app.status}
 									</span>
-							<span
-									className={`inline-flex h-5 items-center rounded-full px-2 text-xs font-medium ${PRIORITY_COLORS[app.priority] ?? "bg-muted text-muted-foreground"}`}
-								>
-									{PRIORITY_LABELS[app.priority] ?? app.priority}
-								</span>
-								{app.tags?.slice(0, 3).map((t) => (
 									<span
-										key={t.id}
-										className="inline-flex h-5 items-center rounded-full px-2 text-[11px] font-medium"
-										style={{
-											backgroundColor: t.color ? `${t.color}20` : undefined,
-											color: t.color ?? undefined,
-										}}
+										className={`inline-flex h-5 items-center rounded-full px-2 text-xs font-medium ${PRIORITY_COLORS[app.priority] ?? "bg-muted text-muted-foreground"}`}
 									>
-										{t.name}
+										{PRIORITY_LABELS[app.priority] ?? app.priority}
 									</span>
-								))}
-								{(app.location || app.remoteType) && (
+									{app.tags?.slice(0, 3).map((t) => (
+										<span
+											key={t.id}
+											className="inline-flex h-5 items-center rounded-full px-2 text-[11px] font-medium"
+											style={{
+												backgroundColor: t.color ? `${t.color}20` : undefined,
+												color: t.color ?? undefined,
+											}}
+										>
+											{t.name}
+										</span>
+									))}
+									{(app.location || app.remoteType) && (
 										<span className="flex items-center gap-1 text-xs text-muted-foreground">
 											<MapPin className="h-3 w-3" />
 											{app.location ?? app.remoteType}
@@ -227,7 +228,9 @@ export default function ApplicationTable({ data, onSelect }: Props) {
 								</div>
 								<p className="text-xs text-muted-foreground">
 									{app.createdAt
-										? format(new Date(app.createdAt), "dd MMM yyyy", { locale: fr })
+										? format(new Date(app.createdAt), "dd MMM yyyy", {
+												locale: fr,
+											})
 										: "—"}
 								</p>
 							</div>
@@ -266,7 +269,10 @@ export default function ApplicationTable({ data, onSelect }: Props) {
 									>
 										{row.getVisibleCells().map((cell) => (
 											<TableCell key={cell.id}>
-												{flexRender(cell.column.columnDef.cell, cell.getContext())}
+												{flexRender(
+													cell.column.columnDef.cell,
+													cell.getContext(),
+												)}
 											</TableCell>
 										))}
 									</TableRow>

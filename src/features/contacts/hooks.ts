@@ -19,13 +19,8 @@ export function useUpdateContact() {
 	const queryClient = useQueryClient();
 
 	return useMutation({
-		mutationFn: ({
-			id,
-			data,
-		}: {
-			id: string;
-			data: Record<string, unknown>;
-		}) => updateContactApi(id, data),
+		mutationFn: ({ id, data }: { id: string; data: Record<string, unknown> }) =>
+			updateContactApi(id, data),
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: [CONTACTS_KEY] });
 		},

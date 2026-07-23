@@ -4,12 +4,7 @@ import { queryClient } from "@/lib/query-client";
 import { useContacts } from "@/features/contacts/hooks";
 import ContactModal from "@/features/contacts/components/ContactModal";
 import type { ContactData } from "@/features/contacts/components/ContactModal";
-import {
-	Building2,
-	Mail,
-	Phone,
-	CheckCircle,
-} from "lucide-react";
+import { Building2, Mail, Phone, CheckCircle } from "lucide-react";
 
 const EMPTY_FILTERS = {};
 
@@ -43,10 +38,18 @@ function ContactsInner({ initialData }: Props) {
 					<thead>
 						<tr className="border-b text-left text-sm text-muted-foreground">
 							<th className="py-3 pr-4 font-medium">Contact</th>
-							<th className="hidden py-3 pr-4 font-medium sm:table-cell">Entreprise</th>
-							<th className="hidden py-3 pr-4 font-medium md:table-cell">Poste</th>
-							<th className="hidden py-3 pr-4 font-medium lg:table-cell">Email</th>
-							<th className="hidden py-3 pr-4 font-medium lg:table-cell">Téléphone</th>
+							<th className="hidden py-3 pr-4 font-medium sm:table-cell">
+								Entreprise
+							</th>
+							<th className="hidden py-3 pr-4 font-medium md:table-cell">
+								Poste
+							</th>
+							<th className="hidden py-3 pr-4 font-medium lg:table-cell">
+								Email
+							</th>
+							<th className="hidden py-3 pr-4 font-medium lg:table-cell">
+								Téléphone
+							</th>
 						</tr>
 					</thead>
 					<tbody>

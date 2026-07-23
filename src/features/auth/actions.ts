@@ -35,7 +35,10 @@ export async function setup(
 
 		return { success: true, userId: user.id };
 	} catch (e) {
-		return { success: false, error: getErrorMessage(e, "Erreur lors de la création du compte") };
+		return {
+			success: false,
+			error: getErrorMessage(e, "Erreur lors de la création du compte"),
+		};
 	}
 }
 
@@ -43,11 +46,21 @@ export async function login(
 	email: string,
 	password: string,
 ): Promise<
-	{ success: true; sessionToken: string; user: { id: string; name: string; email: string } } | { success: false; error: string }
+	| {
+			success: true;
+			sessionToken: string;
+			user: { id: string; name: string; email: string };
+	  }
+	| { success: false; error: string }
 > {
 	try {
 		const [user] = await db
-			.select({ id: users.id, name: users.name, email: users.email, passwordHash: users.passwordHash })
+			.select({
+				id: users.id,
+				name: users.name,
+				email: users.email,
+				passwordHash: users.passwordHash,
+			})
 			.from(users)
 			.where(eq(users.email, email))
 			.limit(1);
@@ -64,9 +77,16 @@ export async function login(
 		const sessionToken = randomUUID();
 		await db.update(users).set({ sessionToken }).where(eq(users.id, user.id));
 
-		return { success: true, sessionToken, user: { id: user.id, name: user.name, email: user.email } };
+		return {
+			success: true,
+			sessionToken,
+			user: { id: user.id, name: user.name, email: user.email },
+		};
 	} catch (e) {
-		return { success: false, error: getErrorMessage(e, "Erreur lors de la connexion") };
+		return {
+			success: false,
+			error: getErrorMessage(e, "Erreur lors de la connexion"),
+		};
 	}
 }
 

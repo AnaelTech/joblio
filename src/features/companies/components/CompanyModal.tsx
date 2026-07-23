@@ -150,7 +150,7 @@ export default function CompanyModal({
 		if (!selected) return;
 		setDeleting(true);
 		const companyName = selected.name;
-	deleteMutation.mutate(selected.id, {
+		deleteMutation.mutate(selected.id, {
 			onSettled: () => setDeleting(false),
 			onSuccess: () => {
 				setSelected(null);

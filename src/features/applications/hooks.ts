@@ -13,7 +13,12 @@ const APPLICATIONS_KEY = "applications";
 const TAGS_KEY = "allTags";
 
 export function useApplications(
-	filters: { q?: string; status?: string; priority?: string; archived?: string },
+	filters: {
+		q?: string;
+		status?: string;
+		priority?: string;
+		archived?: string;
+	},
 	initialData?: ApplicationData[],
 ) {
 	return useQuery({
@@ -35,13 +40,8 @@ export function useUpdateApplication() {
 	const queryClient = useQueryClient();
 
 	return useMutation({
-		mutationFn: ({
-			id,
-			data,
-		}: {
-			id: string;
-			data: Record<string, unknown>;
-		}) => updateApplicationApi(id, data),
+		mutationFn: ({ id, data }: { id: string; data: Record<string, unknown> }) =>
+			updateApplicationApi(id, data),
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: [APPLICATIONS_KEY] });
 		},

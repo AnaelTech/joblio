@@ -14,7 +14,13 @@ interface Props {
 	archived?: string;
 }
 
-function ApplicationsInner({ initialData, q, status, priority, archived }: Props) {
+function ApplicationsInner({
+	initialData,
+	q,
+	status,
+	priority,
+	archived,
+}: Props) {
 	const [selectedId, setSelectedId] = useState<string | null>(null);
 	const filters = useMemo(
 		() => ({
@@ -54,10 +60,22 @@ function ApplicationsInner({ initialData, q, status, priority, archived }: Props
 	);
 }
 
-export default function ApplicationsPage({ initialData, q, status, priority, archived }: Props) {
+export default function ApplicationsPage({
+	initialData,
+	q,
+	status,
+	priority,
+	archived,
+}: Props) {
 	return (
 		<QueryClientProvider client={queryClient}>
-			<ApplicationsInner initialData={initialData} q={q} status={status} priority={priority} archived={archived} />
+			<ApplicationsInner
+				initialData={initialData}
+				q={q}
+				status={status}
+				priority={priority}
+				archived={archived}
+			/>
 		</QueryClientProvider>
 	);
 }

@@ -19,13 +19,8 @@ export function useUpdateInterview() {
 	const queryClient = useQueryClient();
 
 	return useMutation({
-		mutationFn: ({
-			id,
-			data,
-		}: {
-			id: string;
-			data: Record<string, unknown>;
-		}) => updateInterviewApi(id, data),
+		mutationFn: ({ id, data }: { id: string; data: Record<string, unknown> }) =>
+			updateInterviewApi(id, data),
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: [INTERVIEWS_KEY] });
 		},

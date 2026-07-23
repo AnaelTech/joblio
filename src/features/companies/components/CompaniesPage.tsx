@@ -4,12 +4,7 @@ import { queryClient } from "@/lib/query-client";
 import { useCompanies } from "@/features/companies/hooks";
 import CompanyModal from "@/features/companies/components/CompanyModal";
 import type { CompanyData } from "@/features/companies/components/CompanyModal";
-import {
-	ExternalLink,
-	Globe,
-	MapPin,
-	CheckCircle,
-} from "lucide-react";
+import { ExternalLink, Globe, MapPin, CheckCircle } from "lucide-react";
 
 interface Props {
 	initialData: CompanyData[];
@@ -42,10 +37,18 @@ function CompaniesInner({ initialData, q }: Props) {
 					<thead>
 						<tr className="border-b text-left text-sm text-muted-foreground">
 							<th className="py-3 pr-4 font-medium">Entreprise</th>
-							<th className="hidden py-3 pr-4 font-medium md:table-cell">Secteur</th>
-							<th className="hidden py-3 pr-4 font-medium sm:table-cell">Localisation</th>
-							<th className="hidden py-3 pr-4 font-medium lg:table-cell">Site web</th>
-							<th className="hidden py-3 pr-4 font-medium lg:table-cell">LinkedIn</th>
+							<th className="hidden py-3 pr-4 font-medium md:table-cell">
+								Secteur
+							</th>
+							<th className="hidden py-3 pr-4 font-medium sm:table-cell">
+								Localisation
+							</th>
+							<th className="hidden py-3 pr-4 font-medium lg:table-cell">
+								Site web
+							</th>
+							<th className="hidden py-3 pr-4 font-medium lg:table-cell">
+								LinkedIn
+							</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -67,7 +70,9 @@ function CompaniesInner({ initialData, q }: Props) {
 										<div className="min-w-0">
 											<div className="truncate font-medium">{c.name}</div>
 											<div className="text-xs text-muted-foreground sm:hidden">
-												{c.industry ?? ""}{c.industry && c.location ? " · " : ""}{c.location ?? ""}
+												{c.industry ?? ""}
+												{c.industry && c.location ? " · " : ""}
+												{c.location ?? ""}
 											</div>
 										</div>
 									</div>

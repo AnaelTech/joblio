@@ -18,7 +18,10 @@ import {
 	BriefcaseBusiness,
 	Building2,
 } from "lucide-react";
-import { useUpdateInterview, useDeleteInterview } from "@/features/interviews/hooks";
+import {
+	useUpdateInterview,
+	useDeleteInterview,
+} from "@/features/interviews/hooks";
 import type { InterviewRow } from "@/features/interviews/queries";
 import {
 	INTERVIEW_TYPE_LABELS,
@@ -296,7 +299,9 @@ export default function InterviewModal({
 							))}
 						</select>
 						{selected.result !== form.result && (
-							<p className={`mt-1 inline-flex items-center rounded-full px-2 text-[10px] font-medium ${resultColors[form.result] ?? ""}`}>
+							<p
+								className={`mt-1 inline-flex items-center rounded-full px-2 text-[10px] font-medium ${resultColors[form.result] ?? ""}`}
+							>
 								{INTERVIEW_RESULT_LABELS[form.result]}
 							</p>
 						)}
@@ -309,7 +314,9 @@ export default function InterviewModal({
 						<input
 							type="datetime-local"
 							value={form.scheduledAt}
-							onChange={(e) => setForm({ ...form, scheduledAt: e.target.value })}
+							onChange={(e) =>
+								setForm({ ...form, scheduledAt: e.target.value })
+							}
 							className={inputClass}
 							disabled={saving}
 						/>
@@ -336,7 +343,9 @@ export default function InterviewModal({
 						</label>
 						<input
 							value={form.interviewer}
-							onChange={(e) => setForm({ ...form, interviewer: e.target.value })}
+							onChange={(e) =>
+								setForm({ ...form, interviewer: e.target.value })
+							}
 							className={inputClass}
 							placeholder="Nom du recruteur"
 							disabled={saving}

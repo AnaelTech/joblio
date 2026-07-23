@@ -44,7 +44,9 @@ export interface FollowUpItem {
 	followUpDate: Date;
 }
 
-export async function getDashboardStats(userId: string): Promise<DashboardStats | null> {
+export async function getDashboardStats(
+	userId: string,
+): Promise<DashboardStats | null> {
 	try {
 		const [total] = await db
 			.select({ count: count() })
@@ -65,7 +67,9 @@ export async function getDashboardStats(userId: string): Promise<DashboardStats 
 		const [offers] = await db
 			.select({ count: count() })
 			.from(applications)
-			.where(and(eq(applications.userId, userId), eq(applications.status, "offer")));
+			.where(
+				and(eq(applications.userId, userId), eq(applications.status, "offer")),
+			);
 
 		const now = new Date();
 		const sevenDays = addDays(now, 7);
@@ -93,7 +97,9 @@ export async function getDashboardStats(userId: string): Promise<DashboardStats 
 	}
 }
 
-export async function getStatusBreakdown(userId: string): Promise<StatusCount[]> {
+export async function getStatusBreakdown(
+	userId: string,
+): Promise<StatusCount[]> {
 	try {
 		return await db
 			.select({
@@ -109,7 +115,10 @@ export async function getStatusBreakdown(userId: string): Promise<StatusCount[]>
 	}
 }
 
-export async function getRecentActivities(userId: string, limit = 10): Promise<ActivityItem[]> {
+export async function getRecentActivities(
+	userId: string,
+	limit = 10,
+): Promise<ActivityItem[]> {
 	try {
 		return await db
 			.select({
@@ -131,7 +140,10 @@ export async function getRecentActivities(userId: string, limit = 10): Promise<A
 	}
 }
 
-export async function getUpcomingFollowUps(userId: string, days = 7): Promise<FollowUpItem[]> {
+export async function getUpcomingFollowUps(
+	userId: string,
+	days = 7,
+): Promise<FollowUpItem[]> {
 	try {
 		const now = new Date();
 		const future = addDays(now, days);

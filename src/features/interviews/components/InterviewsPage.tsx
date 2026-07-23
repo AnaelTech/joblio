@@ -4,11 +4,7 @@ import { queryClient } from "@/lib/query-client";
 import { useInterviews } from "@/features/interviews/hooks";
 import InterviewModal from "@/features/interviews/components/InterviewModal";
 import type { InterviewData } from "@/features/interviews/components/InterviewModal";
-import {
-	CalendarDays,
-	User,
-	CheckCircle,
-} from "lucide-react";
+import { CalendarDays, User, CheckCircle } from "lucide-react";
 import {
 	INTERVIEW_TYPE_LABELS,
 	INTERVIEW_RESULT_LABELS,
@@ -56,9 +52,15 @@ function InterviewsInner({ initialData }: Props) {
 						<tr className="border-b text-left text-sm text-muted-foreground">
 							<th className="py-3 pr-4 font-medium">Type</th>
 							<th className="py-3 pr-4 font-medium">Poste</th>
-							<th className="hidden py-3 pr-4 font-medium sm:table-cell">Entreprise</th>
-							<th className="hidden py-3 pr-4 font-medium md:table-cell">Date</th>
-							<th className="hidden py-3 pr-4 font-medium md:table-cell">Recruteur</th>
+							<th className="hidden py-3 pr-4 font-medium sm:table-cell">
+								Entreprise
+							</th>
+							<th className="hidden py-3 pr-4 font-medium md:table-cell">
+								Date
+							</th>
+							<th className="hidden py-3 pr-4 font-medium md:table-cell">
+								Recruteur
+							</th>
 							<th className="py-3 pr-4 font-medium">Résultat</th>
 						</tr>
 					</thead>
@@ -79,16 +81,22 @@ function InterviewsInner({ initialData }: Props) {
 									</span>
 								</td>
 								<td className="py-3 pr-4">
-									<span className="text-sm font-medium">{iv.applicationTitle}</span>
+									<span className="text-sm font-medium">
+										{iv.applicationTitle}
+									</span>
 								</td>
 								<td className="hidden py-3 pr-4 sm:table-cell">
-									<span className="text-sm text-muted-foreground">{iv.companyName}</span>
+									<span className="text-sm text-muted-foreground">
+										{iv.companyName}
+									</span>
 								</td>
 								<td className="hidden py-3 pr-4 md:table-cell">
 									{iv.scheduledAt ? (
 										<div className="flex items-center gap-1 text-sm text-muted-foreground">
 											<CalendarDays className="h-3.5 w-3.5 shrink-0" />
-											{format(new Date(iv.scheduledAt), "dd MMM yyyy", { locale: fr })}
+											{format(new Date(iv.scheduledAt), "dd MMM yyyy", {
+												locale: fr,
+											})}
 											{iv.duration && (
 												<span className="text-xs">· {iv.duration}min</span>
 											)}

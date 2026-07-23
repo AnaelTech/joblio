@@ -17,7 +17,9 @@ export async function createContact(
 		const [company] = await db
 			.select({ id: companies.id })
 			.from(companies)
-			.where(and(eq(companies.id, input.companyId), eq(companies.userId, userId)))
+			.where(
+				and(eq(companies.id, input.companyId), eq(companies.userId, userId)),
+			)
 			.limit(1);
 
 		if (!company) {
@@ -39,7 +41,10 @@ export async function createContact(
 
 		return { success: true, id: contact.id };
 	} catch (e) {
-		return { success: false, error: getErrorMessage(e, "Erreur lors de la création") };
+		return {
+			success: false,
+			error: getErrorMessage(e, "Erreur lors de la création"),
+		};
 	}
 }
 
@@ -77,9 +82,15 @@ export async function updateContact(
 		return { success: true };
 	} catch (e) {
 		if (e instanceof z.ZodError) {
-			return { success: false, error: e.errors.map((err) => err.message).join(", ") };
+			return {
+				success: false,
+				error: e.errors.map((err) => err.message).join(", "),
+			};
 		}
-		return { success: false, error: getErrorMessage(e, "Erreur lors de la modification") };
+		return {
+			success: false,
+			error: getErrorMessage(e, "Erreur lors de la modification"),
+		};
 	}
 }
 
@@ -102,6 +113,9 @@ export async function deleteContact(
 		await db.delete(contacts).where(eq(contacts.id, id));
 		return { success: true };
 	} catch (e) {
-		return { success: false, error: getErrorMessage(e, "Erreur lors de la suppression") };
+		return {
+			success: false,
+			error: getErrorMessage(e, "Erreur lors de la suppression"),
+		};
 	}
 }
