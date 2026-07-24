@@ -10,8 +10,7 @@ RUN npm run build
 FROM node:22-alpine AS runtime
 WORKDIR /app
 
-RUN addgroup --system --gid 1001 joblio && \
-	adduser --system --uid 1001 joblio
+RUN adduser -D -s /bin/sh -u 1001 joblio
 
 COPY --from=build /app/dist dist/
 COPY --from=build /app/node_modules node_modules/
