@@ -32,6 +32,10 @@ import {
 	useUpdateNotificationPreferences,
 	useUpdateProfile,
 } from "@/features/settings/hooks";
+import {
+	subscribeToPush,
+	unsubscribeFromPush,
+} from "@/features/notifications/components/PushSetup";
 
 type Theme = "system" | "light" | "dark";
 
@@ -99,6 +103,9 @@ function SettingsPageInner({ user, dbVersion }: Props) {
 		message: string;
 	} | null>(null);
 
+	const [pushEnabled, setPushEnabled] = useState(false);
+	const [pushSaving, setPushSaving] = useState(false);
+
 	const [theme, setThemeState] = useState<Theme>(getStoredTheme);
 	const [resolved, setResolved] = useState<"light" | "dark">(() => {
 		const t = getStoredTheme();
@@ -114,6 +121,11 @@ function SettingsPageInner({ user, dbVersion }: Props) {
 			})
 			.catch(() => {})
 			.finally(() => setLoadingSettings(false));
+	}, []);
+
+	useEffect(() => {
+		if (!("Notification" in window)) return;
+		setPushEnabled(Notification.permission === "granted");
 	}, []);
 
 	const setTheme = (t: Theme) => {
@@ -234,6 +246,21 @@ function SettingsPageInner({ user, dbVersion }: Props) {
 				});
 			},
 		});
+	};
+
+	const handlePushToggle = async (enabled: boolean) => {
+		setPushSaving(true);
+		try {
+			if (enabled) {
+				await subscribeToPush();
+			} else {
+				await unsubscribeFromPush();
+			}
+			setPushEnabled(enabled);
+		} catch {
+			setPushEnabled(!enabled);
+		}
+		setPushSaving(false);
 	};
 
 	const checkboxClass =
@@ -540,6 +567,25 @@ function SettingsPageInner({ user, dbVersion }: Props) {
 												e.target.checked,
 											)
 										}
+									/>
+									<div class={thumbClass} />
+								</div>
+							</label>
+							<label class="flex items-center justify-between rounded-lg border p-3">
+								<div>
+									<p class="text-sm font-medium">Notifications push</p>
+									<p class="text-xs text-muted-foreground">
+										Recevoir des notifications même en dehors du navigateur
+									</p>
+								</div>
+								<div class={checkboxClass}>
+									<input
+										type="checkbox"
+										role="switch"
+										class="sr-only"
+										checked={pushEnabled}
+										disabled={pushSaving}
+										onChange={(e) => handlePushToggle(e.target.checked)}
 									/>
 									<div class={thumbClass} />
 								</div>

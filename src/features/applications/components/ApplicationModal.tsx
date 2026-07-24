@@ -148,7 +148,14 @@ export default function ApplicationModal({
 		setOpen(true);
 		setFeedback(null);
 		setConfirmDelete(false);
-	}, [selectedId, applications]);
+	}, [selectedId]);
+
+	useEffect(() => {
+		if (!selectedId || !selected) return;
+		const app = applications.find((a) => a.id === selectedId);
+		if (!app) return;
+		setSelected(app);
+	}, [applications]);
 
 	const closeModal = useCallback(() => {
 		setOpen(false);
