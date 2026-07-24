@@ -20,14 +20,11 @@ COPY --from=build /app/drizzle.config.ts ./
 COPY --from=build /app/src/db/migrations src/db/migrations/
 COPY --from=build /app/src/db/schema src/db/schema/
 
-RUN mkdir -p /app/dist/client/uploads
+RUN mkdir -p /app/dist/client/uploads && chown -R joblio:joblio /app
 
 COPY docker-entrypoint.sh /docker-entrypoint.sh
-RUN chmod +x /docker-entrypoint.sh
 
 VOLUME /app/dist/client/uploads
-
-USER joblio
 
 ENV HOST=0.0.0.0
 ENV PORT=4321
