@@ -140,7 +140,10 @@ export default function ApplicationModal({
 						return d.toISOString().split("T")[0];
 					})()
 				: null;
-		setFollowUpDateDraft(app.followUpDate ?? suggestedDate ?? "");
+		const initialFollowUp = app.followUpDate
+			? app.followUpDate.split("T")[0]
+			: "";
+		setFollowUpDateDraft(initialFollowUp || suggestedDate || "");
 		setIsFollowUpSuggested(!app.followUpDate && suggestedDate !== null);
 		setOpen(true);
 		setFeedback(null);
@@ -552,7 +555,7 @@ export default function ApplicationModal({
 								disabled={isArchived}
 								className="h-7 flex-1 rounded-lg border bg-transparent px-2.5 text-sm outline-none transition-colors text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:opacity-50"
 							/>
-							{followUpDateDraft !== (selected.followUpDate ?? "") &&
+							{followUpDateDraft !== (selected.followUpDate?.split("T")[0] ?? "") &&
 								!isArchived && (
 									<Button
 										size="sm"
