@@ -2,6 +2,7 @@
 import TooltipProvider from "../components/providers/TooltipProvider";
 import AppSidebarLayout from "../layouts/AppSidebarLayout";
 import ClientRouter from "astro/components/ClientRouter.astro";
+import PushSetup from "@/features/notifications/components/PushSetup";
 
 import "../styles/global.css";
 
@@ -101,6 +102,8 @@ const user = Astro.locals.user;
 			navigator.serviceWorker.register("/sw.js");
 		}
 	</script>
+
+	<PushSetup client:load />
 
 </body>
 

@@ -9,4 +9,7 @@ export * from "../db/schema/activities";
 export * from "../db/schema/documents";
 export * from "../db/schema/interviews";
 export * from "../db/schema/notifications";
+
 export * from "../db/schema/sessions";
+
+export * from "../db/schema/push-subscriptions";

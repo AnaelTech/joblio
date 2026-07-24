@@ -1,6 +1,7 @@
 import { and, desc, eq } from "drizzle-orm";
 import { db } from "@/db/client";
 import { notifications } from "@/db/schema/notifications";
+import { sendPushNotification } from "./push";
 
 export interface CreateNotificationInput {
 	userId: string;
@@ -40,6 +41,13 @@ export async function createNotification(
 			interviewId: input.interviewId ?? null,
 		})
 		.returning();
+
+	sendPushNotification(input.userId, {
+		title: input.title,
+		body: input.message,
+		url: input.link,
+	}).catch(() => {});
+
 	return row;
 }
 
