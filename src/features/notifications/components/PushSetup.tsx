@@ -1,9 +1,9 @@
 import { useEffect, useRef } from "react";
 
-async function getVapidPublicKey(): Promise<string> {
+async function getVapidPublicKey(): Promise<string | null> {
 	const res = await fetch("/api/push/vapid-public-key");
 	const data = await res.json();
-	return data.publicKey;
+	return data.publicKey ?? null;
 }
 
 async function subscribe(): Promise<void> {
@@ -35,6 +35,7 @@ async function subscribe(): Promise<void> {
 	}
 
 	const publicKey = await getVapidPublicKey();
+	if (!publicKey) return;
 	const subscription = await registration.pushManager.subscribe({
 		userVisibleOnly: true,
 		applicationServerKey: publicKey,

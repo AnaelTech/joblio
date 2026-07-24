@@ -1,17 +1,20 @@
-import "dotenv/config";
 import webpush from "web-push";
 import { eq, inArray } from "drizzle-orm";
 import { db } from "@/db/client";
 import { pushSubscriptions } from "@/db/schema/push-subscriptions";
 
-const vapidPublicKey = process.env.VAPID_PUBLIC_KEY!;
-const vapidPrivateKey = process.env.VAPID_PRIVATE_KEY!;
+const vapidPublicKey = process.env.VAPID_PUBLIC_KEY;
+const vapidPrivateKey = process.env.VAPID_PRIVATE_KEY;
 const vapidSubject = process.env.VAPID_SUBJECT || "mailto:admin@joblio.app";
 
-webpush.setVapidDetails(vapidSubject, vapidPublicKey, vapidPrivateKey);
+const isConfigured = vapidPublicKey && vapidPrivateKey;
 
-export function getVapidPublicKey(): string {
-	return vapidPublicKey;
+if (isConfigured) {
+	webpush.setVapidDetails(vapidSubject, vapidPublicKey, vapidPrivateKey);
+}
+
+export function getVapidPublicKey(): string | null {
+	return vapidPublicKey ?? null;
 }
 
 export interface PushPayload {
@@ -24,6 +27,8 @@ export async function sendPushNotification(
 	userId: string,
 	payload: PushPayload,
 ): Promise<void> {
+	if (!isConfigured) return;
+
 	const subscriptions = await db
 		.select()
 		.from(pushSubscriptions)
@@ -50,8 +55,8 @@ export async function sendPushNotification(
 	}
 
 	if (toDelete.length > 0) {
-		await db.delete(pushSubscriptions).where(inArray(pushSubscriptions.id, toDelete));
+		await db
+			.delete(pushSubscriptions)
+			.where(inArray(pushSubscriptions.id, toDelete));
 	}
 }
-
-
