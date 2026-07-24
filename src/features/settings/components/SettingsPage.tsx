@@ -253,6 +253,7 @@ function SettingsPageInner({ user, dbVersion }: Props) {
 		try {
 			if (enabled) {
 				await subscribeToPush();
+				fetch("/api/push/test", { method: "POST" }).catch(() => {});
 			} else {
 				await unsubscribeFromPush();
 			}
