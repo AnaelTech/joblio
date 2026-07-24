@@ -252,6 +252,20 @@ function SettingsPageInner({ user, dbVersion }: Props) {
 		setPushSaving(true);
 		try {
 			if (enabled) {
+				if (!("Notification" in window)) return;
+				if (Notification.permission === "denied") {
+					setPushEnabled(false);
+					setPushSaving(false);
+					return;
+				}
+				if (Notification.permission === "default") {
+					const permission = await Notification.requestPermission();
+					if (permission !== "granted") {
+						setPushEnabled(false);
+						setPushSaving(false);
+						return;
+					}
+				}
 				await subscribeToPush();
 				fetch("/api/push/test", { method: "POST" }).catch(() => {});
 			} else {
