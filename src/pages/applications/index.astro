@@ -98,9 +98,24 @@ const initialData: ApplicationData[] = rows.map((app) => ({
       document.addEventListener("DOMContentLoaded", () => {
         const form = document.getElementById("filter-form");
         if (!form) return;
-        form.querySelector("[name=status]")?.addEventListener("change", () => form.submit());
-        form.querySelector("[name=priority]")?.addEventListener("change", () => form.submit());
-        form.querySelector("[name=archived]")?.addEventListener("change", () => form.submit());
+        const submit = () => {
+          const params = new URLSearchParams();
+          const q = form.querySelector("[name=q]");
+          const status = form.querySelector("[name=status]");
+          const priority = form.querySelector("[name=priority]");
+          const archived = form.querySelector("[name=archived]");
+          if (q instanceof HTMLInputElement && q.value) params.set("q", q.value);
+          if (status instanceof HTMLSelectElement && status.value) params.set("status", status.value);
+          if (priority instanceof HTMLSelectElement && priority.value) params.set("priority", priority.value);
+          if (archived instanceof HTMLInputElement && archived.checked) params.set("archived", "true");
+          window.location.href = `/applications${params.toString() ? `?${params.toString()}` : ""}`;
+        };
+        form.querySelector("[name=status]")?.addEventListener("change", submit);
+        form.querySelector("[name=priority]")?.addEventListener("change", submit);
+        form.querySelector("[name=archived]")?.addEventListener("change", submit);
+        form.querySelector("[name=q]")?.addEventListener("keydown", (e) => {
+          if (e.key === "Enter") submit();
+        });
       });
     </script>
 
