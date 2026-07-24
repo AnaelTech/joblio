@@ -30,7 +30,7 @@ const hasFilters = Boolean(
 	search || statusFilter || priorityFilter || archivedFilter,
 );
 const inputClass =
-	"h-8 w-full min-w-0 rounded-lg border border-input bg-transparent px-2.5 py-1 text-base transition-colors outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 md:text-sm";
+	"h-8 w-full min-w-0 rounded-lg border border-input bg-background px-2.5 py-1 text-sm text-foreground transition-colors outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 md:text-sm";
 
 const initialData: ApplicationData[] = rows.map((app) => ({
 	...app,
@@ -66,6 +66,7 @@ const initialData: ApplicationData[] = rows.map((app) => ({
     </div>
 
     <form method="GET" id="filter-form" class="flex flex-wrap items-end gap-3">
+      <button type="submit" hidden></button>
       <SearchInput placeholder="Rechercher par titre ou entreprise..." value={search} class="relative min-w-0 flex-1 basis-50" />
 
       <select name="status" class={`${inputClass} w-full md:w-auto md:max-w-40`}>
@@ -95,27 +96,14 @@ const initialData: ApplicationData[] = rows.map((app) => ({
     </form>
 
     <script>
-      document.addEventListener("DOMContentLoaded", () => {
-        const form = document.getElementById("filter-form");
-        if (!form) return;
-        const submit = () => {
-          const params = new URLSearchParams();
-          const q = form.querySelector("[name=q]");
-          const status = form.querySelector("[name=status]");
-          const priority = form.querySelector("[name=priority]");
-          const archived = form.querySelector("[name=archived]");
-          if (q instanceof HTMLInputElement && q.value) params.set("q", q.value);
-          if (status instanceof HTMLSelectElement && status.value) params.set("status", status.value);
-          if (priority instanceof HTMLSelectElement && priority.value) params.set("priority", priority.value);
-          if (archived instanceof HTMLInputElement && archived.checked) params.set("archived", "true");
-          window.location.href = `/applications${params.toString() ? `?${params.toString()}` : ""}`;
-        };
-        form.querySelector("[name=status]")?.addEventListener("change", submit);
-        form.querySelector("[name=priority]")?.addEventListener("change", submit);
-        form.querySelector("[name=archived]")?.addEventListener("change", submit);
-        form.querySelector("[name=q]")?.addEventListener("keydown", (e) => {
-          if (e.key === "Enter") submit();
-        });
+      document.addEventListener("change", (e) => {
+        const target = e.target;
+        if (!(target instanceof Element)) return;
+        const form = target.closest("#filter-form");
+        if (!form || !(form instanceof HTMLFormElement)) return;
+        if (target.matches("[name=status], [name=priority], [name=archived]")) {
+          form.requestSubmit();
+        }
       });
     </script>
 
