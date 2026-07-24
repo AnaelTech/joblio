@@ -126,7 +126,13 @@ export async function updateApplication(
 
 		await db
 			.update(applications)
-			.set({ ...parsed, updatedAt: new Date() })
+			.set({
+				...parsed,
+				followUpDate: parsed.followUpDate !== undefined
+					? parsed.followUpDate ? new Date(parsed.followUpDate) : null
+					: undefined,
+				updatedAt: new Date(),
+			})
 			.where(eq(applications.id, id));
 
 		if (changed.length > 0) {
