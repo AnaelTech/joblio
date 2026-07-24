@@ -96,21 +96,11 @@ const initialData: ApplicationData[] = rows.map((app) => ({
 
     <script>
       document.addEventListener("DOMContentLoaded", () => {
-        const status = document.querySelector("[name=status]");
-        const priority = document.querySelector("[name=priority]");
-        const archived = document.querySelector("[name=archived]");
-        const submit = () => {
-          const params = new URLSearchParams();
-          const q = document.querySelector("[name=q]");
-          if (q instanceof HTMLInputElement && q.value) params.set("q", q.value);
-          if (status instanceof HTMLSelectElement && status.value) params.set("status", status.value);
-          if (priority instanceof HTMLSelectElement && priority.value) params.set("priority", priority.value);
-          if (archived instanceof HTMLInputElement && archived.checked) params.set("archived", "true");
-          window.location.href = `/applications${params.toString() ? `?${params.toString()}` : ""}`;
-        };
-        status?.addEventListener("change", submit);
-        priority?.addEventListener("change", submit);
-        archived?.addEventListener("change", submit);
+        const form = document.getElementById("filter-form");
+        if (!form) return;
+        form.querySelector("[name=status]")?.addEventListener("change", () => form.submit());
+        form.querySelector("[name=priority]")?.addEventListener("change", () => form.submit());
+        form.querySelector("[name=archived]")?.addEventListener("change", () => form.submit());
       });
     </script>
 
