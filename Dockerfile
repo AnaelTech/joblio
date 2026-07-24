@@ -23,6 +23,7 @@ COPY --from=build /app/src/db/schema src/db/schema/
 RUN mkdir -p /app/dist/client/uploads && chown -R joblio:joblio /app
 
 COPY docker-entrypoint.sh /docker-entrypoint.sh
+RUN chmod +x /docker-entrypoint.sh
 
 VOLUME /app/dist/client/uploads
 
