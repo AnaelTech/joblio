@@ -329,9 +329,9 @@ export default function ApplicationModal({
 							{selected.companyName.charAt(0).toUpperCase()}
 						</div>
 						<div className="flex-1 min-w-0">
-							<DialogTitle className="text-lg truncate">
-								{selected.title}
-							</DialogTitle>
+<DialogTitle className="text-lg break-words">
+    {selected.title}
+</DialogTitle>
 							<p className="flex items-center gap-1.5 text-sm text-muted-foreground">
 								<Building2 className="h-3.5 w-3.5 shrink-0" />
 								<span className="truncate">{selected.companyName}</span>

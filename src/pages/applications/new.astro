@@ -4,7 +4,7 @@ export const prerender = false;
 import AppLayout from "@/layouts/AppLayout.astro";
 import { Card, CardContent } from "@/components/ui/card";
 import { ArrowLeft, Plus, Upload } from "lucide-react";
-import { createApplication } from "@/features/applications/actions";
+import { createApplication, deleteApplication } from "@/features/applications/actions";
 import { createApplicationSchema } from "@/features/applications/schema";
 import {
 	SOURCE_LABELS,
@@ -77,26 +77,28 @@ if (Astro.request.method === "POST") {
 			const result = await createApplication(userId, parsed.data);
 
 			if (result.success) {
+				const uploadErrors: string[] = [];
+
 				if (resume && resume.size > 0) {
 					const r = await uploadDocument(result.id, "resume", resume);
 					if (!r.success) {
-						globalError = `CV : ${r.error}`;
+						uploadErrors.push(`CV : ${r.error}`);
 					}
 				}
-				if (!globalError && coverLetter && coverLetter.size > 0) {
+				if (coverLetter && coverLetter.size > 0) {
 					const r = await uploadDocument(
 						result.id,
 						"cover_letter",
 						coverLetter,
 					);
 					if (!r.success) {
-						globalError = `Lettre de motivation : ${r.error}`;
+						uploadErrors.push(`Lettre de motivation : ${r.error}`);
 					}
 				}
 
-				if (globalError) {
-					errors = {};
-					Object.assign(values, raw);
+				if (uploadErrors.length > 0) {
+					deleteApplication(result.id, userId);
+					globalError = uploadErrors.join(" | ");
 				} else {
 					return Astro.redirect("/applications");
 				}
